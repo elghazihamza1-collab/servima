@@ -18,7 +18,7 @@
     <a href="{{ url_for('jobs') }}">{{ t('nav_jobs') }} ←</a>
   </div>
   <div class="catgrid">
-    {% for cat in categories[:8] %}
+    {% for cat in categories %}
     <a class="catcard" href="{{ url_for('jobs', category=cat.key) }}">
       <span class="catimg">
         <span class="catimg-ph">✦</span>
