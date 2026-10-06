@@ -979,11 +979,24 @@ def become_worker():
     return redirect(url_for("dashboard"))
 
 
+@app.route("/profile")
+@login_required
+def profile():
+    """Consolidated 'My account' page: everything the user can change."""
+    lang = get_lang()
+    return render_template(
+        "profile.html",
+        cities=[(k, city_name(k, lang)) for k in CITY_KEYS],
+    )
+
+
 @app.route("/profile", methods=["POST"])
 @login_required
 def profile_update():
-    """LinkedIn-style optional profile: photo, bio, years of experience."""
+    """Consolidated profile update: photo, name, city (+ bio/experience for workers)."""
     u = current_user()
+    name = request.form.get("name", "").strip()
+    city = request.form.get("city", "").strip()
     bio = request.form.get("bio", "").strip()
     exp_raw = request.form.get("experience_years", "").strip()
     try:
@@ -991,6 +1004,10 @@ def profile_update():
         assert exp is None or 0 <= exp <= 60
     except (ValueError, AssertionError):
         exp = None
+    if name:
+        u.name = name
+    if city in CITY_KEYS:
+        u.city = city
     photo = save_upload(request.files.get("photo"))
     if photo:
         _delete_file(app.config["UPLOAD_FOLDER"], u.photo_file)
@@ -999,7 +1016,7 @@ def profile_update():
     u.experience_years = exp
     db.session.commit()
     flash(t("msg_profile_updated"), "ok")
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("profile"))
 
 
 def _listing_form_data(listing=None):
