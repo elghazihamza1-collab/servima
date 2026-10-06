@@ -20,6 +20,7 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
@@ -588,7 +589,12 @@ def register():
             )
             user.set_password(password)
             db.session.add(user)
-            db.session.commit()
+            try:
+                db.session.commit()
+            except IntegrityError:  # double-submit / race: phone already taken
+                db.session.rollback()
+                flash(t("err_phone_taken"), "error")
+                return redirect(url_for("register"))
             session["user_id"] = user.id
             flash(t("welcome", name=user.name), "ok")
             return redirect(url_for("dashboard"))
