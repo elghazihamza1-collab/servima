@@ -6,6 +6,25 @@
 <p class="muted">👤 {{ current_user.name }} · <span dir="ltr">{{ current_user.phone }}</span></p>
 <a class="btn btn-green" href="{{ url_for('job_new') }}">{{ t('nav_post_job') }}</a>
 
+<section class="dash-sec worker-toggle">
+  <h2>{{ t('become_worker_title') if not current_user.is_worker else t('change_trade') }}</h2>
+  {% if not current_user.is_worker %}
+  <p class="muted">{{ t('become_worker_sub') }}</p>
+  {% else %}
+  <p class="muted">{{ t('f_trade') }}: <strong>{{ current_user.trade_name }}</strong></p>
+  {% endif %}
+  <form method="post" action="{{ url_for('become_worker') }}" class="filters">
+    <label>{{ t('f_trade') }}
+      <select name="trade" required>
+        {% for c in categories %}
+        <option value="{{ c.key }}" {{ 'selected' if current_user.trade == c.key else '' }}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-green" type="submit">{{ t('become_worker_btn') if not current_user.is_worker else t('change_trade') }}</button>
+  </form>
+</section>
+
 <section class="dash-sec">
   <h2>{{ t('my_posted_jobs') }}</h2>
   <div class="mini-cards">
