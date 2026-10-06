@@ -126,6 +126,12 @@ class JobRequest(db.Model):
     price = db.Column(db.Integer, nullable=False)  # MAD, proposed
     status = db.Column(db.String(20), default="open")  # open|accepted|done|cancelled
     accepted_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    # inDrive-style counter-offer: a worker proposes a different price on an open job.
+    # When the client accepts, job.price is UPDATED to the agreed amount, so any
+    # future commission is always computed from the agreed price, never the posted one.
+    counter_price = db.Column(db.Integer, nullable=True)
+    counter_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    counter_with = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)  # other party
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     category = db.relationship("Category")
@@ -586,8 +592,10 @@ def job_detail(job_id):
     can_edit = bool(me and job.status == "open" and (
         job.client_phone == me.phone or me.is_admin
     ))
+    counter_worker = db.session.get(User, job.counter_by) if job.counter_by else None
     return render_template("job_detail.html", job=job, accepted_worker=accepter, wa_url=wa_url,
-                           can_chat=can_chat, can_edit=can_edit)
+                           can_chat=can_chat, can_edit=can_edit, counter_worker=counter_worker,
+                           offer_from=counter_worker)
 
 
 @app.route("/jobs/<int:job_id>/accept", methods=["POST"])
@@ -604,8 +612,121 @@ def job_accept(job_id):
     else:
         job.status = "accepted"
         job.accepted_by = u.id
+        job.counter_price = None
+        job.counter_by = None
+        job.counter_with = None
         db.session.commit()
         flash(t("msg_job_accepted", phone=job.client_phone), "ok")
+    return redirect(url_for("job_detail", job_id=job.id))
+
+
+@app.route("/jobs/<int:job_id>/offer", methods=["POST"])
+@login_required
+def job_offer(job_id):
+    """inDrive-style counter-offer: a worker proposes a different price on an open job."""
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    if not u.is_worker:
+        flash(t("err_not_worker"), "error")
+    elif job.status != "open":
+        flash(t("err_not_open"), "error")
+    elif job.client_phone == u.phone:
+        flash(t("err_self_accept"), "error")
+    else:
+        try:
+            price = int(request.form.get("price", "0"))
+            assert price > 0
+        except (ValueError, AssertionError):
+            price = 0
+        if not price:
+            flash(t("err_required"), "error")
+        else:
+            client = User.query.filter_by(phone=job.client_phone).first()
+            if not client:
+                abort(403)
+            job.counter_price = price
+            job.counter_by = u.id
+            job.counter_with = client.id
+            db.session.commit()
+            db.session.add(Notification(user_id=client.id, job_id=job.id, kind="counter_offer"))
+            db.session.commit()
+            flash(t("msg_offer_sent"), "ok")
+    return redirect(url_for("job_detail", job_id=job.id))
+
+
+@app.route("/jobs/<int:job_id>/offer/counter", methods=["POST"])
+@login_required
+def job_offer_counter(job_id):
+    """Round-trip negotiation: the party the offer is directed at counters back."""
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    if job.status != "open" or not job.counter_price or not job.counter_by or not job.counter_with:
+        abort(403)
+    if job.counter_with != u.id:
+        abort(403)  # only the addressed party may counter
+    try:
+        price = int(request.form.get("price", "0"))
+        assert price > 0
+    except (ValueError, AssertionError):
+        flash(t("err_required"), "error")
+        return redirect(url_for("job_detail", job_id=job.id))
+    other_id = job.counter_by
+    job.counter_price = price
+    job.counter_by = u.id
+    job.counter_with = other_id
+    db.session.commit()
+    db.session.add(Notification(user_id=other_id, job_id=job.id, kind="counter_offer"))
+    db.session.commit()
+    flash(t("msg_offer_sent"), "ok")
+    return redirect(url_for("job_detail", job_id=job.id))
+
+
+@app.route("/jobs/<int:job_id>/offer/accept", methods=["POST"])
+@login_required
+def job_offer_accept(job_id):
+    """Whoever the pending offer is addressed to accepts: AGREED price becomes job price."""
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    if job.status != "open" or not job.counter_price or not job.counter_by or not job.counter_with:
+        abort(403)
+    if job.counter_with != u.id:
+        abort(403)
+    client_user = User.query.filter_by(phone=job.client_phone).first()
+    worker_id = job.counter_by if (not client_user or job.counter_by != client_user.id) else job.counter_with
+    worker = db.session.get(User, worker_id)
+    if not worker or not worker.is_worker:
+        abort(403)
+    other_id = job.counter_by
+    job.price = job.counter_price  # agreed price — the future commission base
+    job.accepted_by = worker_id
+    job.status = "accepted"
+    job.counter_price = None
+    job.counter_by = None
+    job.counter_with = None
+    db.session.commit()
+    db.session.add(Notification(user_id=other_id, job_id=job.id, kind="offer_accepted"))
+    db.session.commit()
+    flash(t("msg_offer_accepted"), "ok")
+    return redirect(url_for("job_detail", job_id=job.id))
+
+
+@app.route("/jobs/<int:job_id>/offer/decline", methods=["POST"])
+@login_required
+def job_offer_decline(job_id):
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    if job.status != "open" or not job.counter_price or not job.counter_by or not job.counter_with:
+        abort(403)
+    if job.counter_with != u.id:
+        abort(403)
+    other_id = job.counter_by
+    job.counter_price = None
+    job.counter_by = None
+    job.counter_with = None
+    db.session.commit()
+    db.session.add(Notification(user_id=other_id, job_id=job.id, kind="offer_declined"))
+    db.session.commit()
+    flash(t("msg_offer_declined"), "ok")
     return redirect(url_for("job_detail", job_id=job.id))
 
 
