@@ -3,7 +3,7 @@
 {% block content %}
 
 <h1>{{ t('dash_title') }}</h1>
-<p class="muted">👤 {{ current_user.name }} · <span dir="ltr">{{ current_user.phone }}</span></p>
+<p class="muted">👤 {{ current_user.name }} · <span dir="ltr">{{ current_user.phone }}</span> · <a href="{{ url_for('change_password') }}">{{ t('change_pw_title') }}</a></p>
 <a class="btn btn-green" href="{{ url_for('job_new') }}">{{ t('nav_post_job') }}</a>
 
 <section class="dash-sec worker-toggle">

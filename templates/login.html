@@ -13,6 +13,7 @@
     </label>
     <button class="btn btn-block btn-lg" type="submit">{{ t('btn_login') }}</button>
   </form>
+  <p class="auth-alt"><a href="{{ url_for('forgot_password') }}">{{ t('forgot_pw_link') }}</a></p>
   <p class="auth-alt"><a href="{{ url_for('register') }}">{{ t('no_account') }}</a></p>
 </div>
 

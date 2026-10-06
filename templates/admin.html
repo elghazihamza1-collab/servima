@@ -59,6 +59,7 @@
         <form method="post" action="{{ url_for('admin_user_block', user_id=u.id) }}"><button class="link danger" type="submit">{{ t('btn_block') }}</button></form>
       {% endif %}
       <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
+      <form method="post" action="{{ url_for('admin_user_reset_pw', user_id=u.id) }}" onsubmit="return confirm('{{ t('confirm_reset_pw') }}')"><button class="link" type="submit">🔑 {{ t('btn_reset_pw') }}</button></form>
     </td>
   </tr>
   {% endfor %}
