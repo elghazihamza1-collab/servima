@@ -43,6 +43,8 @@ app.config["CAT_UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "img", "categ
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2 MB uploads
 app.config["SESSION_TYPE"] = "filesystem"          # server-side sessions
 app.config["SESSION_FILE_DIR"] = os.path.join(BASE_DIR, "instance", "sessions")
+
+SUPPORT_WHATSAPP = "212621850430"  # public support number (password help)
 app.config["SESSION_PERMANENT"] = False
 
 ALLOWED_EXT = {"png", "jpg", "jpeg", "gif", "webp"}
@@ -879,6 +881,34 @@ def logout():
     return redirect(url_for("home"))
 
 
+@app.route("/password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    u = current_user()
+    if request.method == "POST":
+        current = request.form.get("current_password", "")
+        new = request.form.get("new_password", "")
+        confirm = request.form.get("confirm_password", "")
+        if not u.check_password(current):
+            flash(t("err_wrong_current_pw"), "error")
+        elif len(new) < 4:
+            flash(t("err_pw_too_short"), "error")
+        elif new != confirm:
+            flash(t("err_pw_mismatch"), "error")
+        else:
+            u.set_password(new)
+            db.session.commit()
+            flash(t("msg_pw_changed"), "ok")
+            return redirect(url_for("dashboard"))
+    return render_template("change_password.html")
+
+
+@app.route("/forgot-password")
+def forgot_password():
+    wa_url = "https://wa.me/%s?text=%s" % (SUPPORT_WHATSAPP, quote(t("wa_forgot_pw")))
+    return render_template("forgot_password.html", wa_url=wa_url)
+
+
 # ---------------------------------------------------------------- dashboard
 @app.route("/notifications")
 @login_required
@@ -1266,6 +1296,18 @@ def admin_user_unblock(user_id):
 @admin_required
 def admin_user_delete(user_id):
     return _admin_user_do(user_id, "delete")
+
+
+@app.route("/admin/users/<int:user_id>/reset-pw", methods=["POST"])
+@admin_required
+def admin_user_reset_pw(user_id):
+    """Admin generates a temporary password for a user who forgot theirs."""
+    user = db.get_or_404(User, user_id)
+    temp = "%06d" % secrets.randbelow(1000000)
+    user.set_password(temp)
+    db.session.commit()
+    flash(t("msg_pw_reset", name=user.name, password=temp), "ok")
+    return redirect(url_for("admin"))
 
 
 CAT_KEY_RE = re.compile(r"^[a-z0-9_]+$")
