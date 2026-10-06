@@ -329,3 +329,31 @@ section.block { margin-block: 2.2rem; }
 /* WhatsApp button */
 .btn-wa { background: #25D366; color: #fff; }
 .btn-wa:hover { filter: brightness(.94); color: #fff; }
+
+/* ---------------------------------------------------------------- in-site chat */
+.chatwrap{max-width:640px;margin:0 auto;border:1px solid var(--border,#e5e5e5);border-radius:14px;overflow:hidden;background:var(--surface,#fff);display:flex;flex-direction:column;height:min(78vh,640px)}
+.chead{display:flex;align-items:center;gap:.6rem;background:#007a3d;color:#fff;padding:.6rem .8rem;flex:none}
+.cback{color:#fff;text-decoration:none;font-size:1.3rem;line-height:1;padding:.2rem .4rem}
+.chead .avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex:none}
+.cinfo{line-height:1.25;min-width:0}
+.cname{font-weight:700}
+.csub{font-size:.75rem;opacity:.88;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbody{flex:1;overflow-y:auto;padding:.9rem .7rem;display:flex;flex-direction:column;gap:.45rem;background:#ece5dd}
+.cday{align-self:center;background:#fff;border-radius:8px;padding:.35rem .8rem;font-size:.78rem;color:#667781;box-shadow:0 1px 1px rgba(0,0,0,.08);text-align:center;max-width:90%}
+.msg{max-width:80%;border-radius:10px;padding:.5rem .7rem;box-shadow:0 1px 1px rgba(0,0,0,.08);font-size:.92rem;line-height:1.5;overflow-wrap:anywhere}
+.msg.me{align-self:flex-end;background:#d9fdd3;color:#111b21}
+.msg.them{align-self:flex-start;background:#fff;color:#111b21}
+.ctext{margin:0;white-space:pre-wrap}
+.cimg{max-width:100%;border-radius:8px;display:block;margin-block-end:.3rem}
+.ctime{display:block;text-align:end;font-size:.65rem;color:#667781;margin-top:.15rem}
+.cfoot{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem;background:var(--surface,#fff);border-top:1px solid var(--border,#e5e5e5);flex:none}
+.cinput{flex:1;border:1px solid var(--border,#e5e5e5);border-radius:999px;padding:.6rem .95rem;font-size:.9rem;background:var(--surface,#fff);color:inherit;min-width:0}
+.cattach{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;color:#007a3d;cursor:pointer;flex:none}
+.csend{width:42px;height:42px;border-radius:50%;background:#007a3d;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+@media (prefers-color-scheme:dark){
+  .cbody{background:#0b141a}
+  .msg.me{background:#005c4b;color:#e9edef}
+  .msg.them{background:#1f2c34;color:#e9edef}
+  .ctime{color:#8696a0}
+  .cday{background:#1f2c34;color:#aebac1}
+}
