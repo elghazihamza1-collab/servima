@@ -1430,6 +1430,9 @@ def admin_category_delete(key):
 @admin_required
 def admin_job_delete(job_id):
     job = db.get_or_404(JobRequest, job_id)
+    # delete dependents first: Postgres FKs block deleting the job otherwise
+    Message.query.filter_by(job_id=job.id).delete()
+    Notification.query.filter_by(job_id=job.id).delete()
     db.session.delete(job)
     db.session.commit()
     flash(t("msg_deleted"), "ok")
