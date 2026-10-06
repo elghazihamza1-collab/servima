@@ -360,3 +360,4 @@ section.block { margin-block: 2.2rem; }
 .chead-link{display:flex;align-items:center;gap:.6rem;color:#fff;text-decoration:none;min-width:0;flex:1}
 .chead-link .cinfo{color:#fff}
 .profile-photo-lg{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--green,#007a3d)}
+.guest-banner{display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;background:var(--green-soft);border:1px dashed var(--green);border-radius:14px;padding:.75rem 1.1rem;margin:1rem auto 0;max-width:640px;font-size:.95rem;text-align:center}
