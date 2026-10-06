@@ -510,7 +510,7 @@ def job_detail(job_id):
     )
     wa_url = "https://wa.me/?text=" + quote(share_text)
     me = current_user()
-    can_chat = bool(me and job.status == "accepted" and (
+    can_chat = bool(me and job.status in ("accepted", "done") and (
         job.client_phone == me.phone or (job.accepted_by and job.accepted_by == me.id)
     ))
     can_edit = bool(me and job.status == "open" and (
@@ -529,6 +529,8 @@ def job_accept(job_id):
         flash(t("err_not_worker"), "error")
     elif job.status != "open":
         flash(t("err_not_open"), "error")
+    elif job.client_phone == u.phone:
+        flash(t("err_self_accept"), "error")
     else:
         job.status = "accepted"
         job.accepted_by = u.id
@@ -563,7 +565,7 @@ def _chat_party(job, u):
     """True if u is the client or the accepted worker of this job."""
     return bool(
         u
-        and job.status == "accepted"
+        and job.status in ("accepted", "done")
         and (job.client_phone == u.phone or (job.accepted_by and job.accepted_by == u.id))
     )
 
