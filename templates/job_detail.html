@@ -40,6 +40,33 @@
     <div class="small muted">{{ t('proposed_price') }}</div>
     <div class="price big">{{ job.price }} <small>MAD</small></div>
 
+    {% if job.status == 'open' and job.counter_price and job.counter_by and job.counter_with and offer_from and current_user %}
+      {% if current_user.id == job.counter_with %}
+      {% set delta = job.counter_price - job.price %}
+    <div class="offer-box">
+      <p>🔁 {{ t('offer_received', name=offer_from.name, price=job.counter_price) }}
+        {% if delta != 0 %}<span class="offer-delta">({{ '%+d'|format(delta) }} MAD)</span>{% endif %}</p>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <form method="post" action="{{ url_for('job_offer_accept', job_id=job.id) }}">
+          <button class="btn btn-sm btn-green" type="submit">✅ {{ t('btn_accept_offer') }}</button>
+        </form>
+        <form method="post" action="{{ url_for('job_offer_decline', job_id=job.id) }}">
+          <button class="btn btn-sm btn-outline" type="submit">{{ t('btn_decline_offer') }}</button>
+        </form>
+      </div>
+      <form method="post" action="{{ url_for('job_offer_counter', job_id=job.id) }}" class="offer-form" style="margin-block-start:.7rem">
+        <label class="small muted" for="counterPrice">{{ t('offer_counter_label') }}</label>
+        <div style="display:flex;gap:.5rem">
+          <input id="counterPrice" type="number" name="price" min="1" required placeholder="MAD" style="flex:1;min-width:0">
+          <button class="btn btn-sm btn-outline" type="submit">🔁 {{ t('btn_counter_back') }}</button>
+        </div>
+      </form>
+    </div>
+      {% elif current_user.id == job.counter_by %}
+    <p class="hint">⏳ {{ t('offer_waiting', price=job.counter_price) }}</p>
+      {% endif %}
+    {% endif %}
+
     {% if job.status == 'accepted' %}
       <p class="accepted-note">✓ {{ t('job_accepted_by_you') }}</p>
       {% if job.show_phone and job.client_phone %}
@@ -56,10 +83,25 @@
     {% elif not current_user %}
       <a class="btn btn-block" href="{{ url_for('login', next=url_for('job_detail', job_id=job.id)) }}" style="margin-block-start:1rem">{{ t('login_to_accept') }}</a>
     {% elif current_user.phone != job.client_phone %}
+      {% if job.counter_price and job.counter_with == current_user.id %}
+      {# pending offer addressed to this worker is handled by the offer box above #}
+      {% else %}
       <form method="post" action="{{ url_for('job_accept', job_id=job.id) }}" style="margin-block-start:1rem">
         <button class="btn btn-block btn-lg" type="submit">{{ t('btn_accept') }}</button>
       </form>
+      {% if job.counter_by == current_user.id and job.counter_price %}
+      <p class="hint center">⏳ {{ t('offer_waiting', price=job.counter_price) }}</p>
+      {% else %}
+      <form method="post" action="{{ url_for('job_offer', job_id=job.id) }}" class="offer-form" style="margin-block-start:.8rem">
+        <label class="small muted" for="offerPrice">{{ t('offer_label') }}</label>
+        <div style="display:flex;gap:.5rem">
+          <input id="offerPrice" type="number" name="price" min="1" required placeholder="MAD" style="flex:1;min-width:0">
+          <button class="btn btn-outline" type="submit">🔁 {{ t('btn_counter_offer') }}</button>
+        </div>
+      </form>
+      {% endif %}
       <p class="hint center">{{ t('free_launch_note') }}</p>
+      {% endif %}
     {% endif %}
 
     <a class="btn btn-block btn-whatsapp" href="{{ wa_url }}" target="_blank" rel="noopener" style="margin-block-start:.6rem">
