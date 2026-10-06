@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav_profile') }}{% endblock %}
+{% block content %}
+
+<div class="auth-card">
+  <h1>{{ t('nav_profile') }}</h1>
+
+  {% if current_user.photo_file %}
+  <div class="center" style="margin-block-end:1rem">
+    <img src="{{ url_for('uploaded_file', filename=current_user.photo_file) }}" alt="" class="profile-photo-lg">
+  </div>
+  {% endif %}
+
+  <form action="{{ url_for('profile_update') }}" method="post" enctype="multipart/form-data" class="form">
+    <label>📷 {{ t('f_photo') }} <span class="muted small">({{ t('optional') }})</span>
+      <input type="file" name="photo" accept="image/*">
+    </label>
+    <label>{{ t('f_name') }}
+      <input type="text" name="name" required maxlength="120" value="{{ current_user.name }}">
+    </label>
+    <label>{{ t('f_phone') }}
+      <input type="tel" value="{{ current_user.phone }}" disabled dir="ltr">
+      <span class="hint">{{ t('phone_locked_hint') }}</span>
+    </label>
+    <label>{{ t('f_city') }}
+      <select name="city" required>
+        {% for k, name in cities %}
+        <option value="{{ k }}" {{ 'selected' if k == current_user.city else '' }}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% if current_user.is_worker %}
+    <label>📝 {{ t('f_bio') }} <span class="muted small">({{ t('optional') }})</span>
+      <textarea name="bio" rows="2" maxlength="300" placeholder="{{ t('f_bio_ph') }}">{{ current_user.bio or '' }}</textarea>
+    </label>
+    <label>🏆 {{ t('f_experience') }} <span class="muted small">({{ t('optional') }})</span>
+      <input type="number" name="experience_years" min="0" max="60" value="{{ current_user.experience_years or '' }}">
+    </label>
+    {% endif %}
+    <button class="btn btn-block btn-lg btn-green" type="submit">{{ t('btn_save') }}</button>
+  </form>
+
+  <p class="auth-alt"><a href="{{ url_for('change_password') }}">{{ t('change_pw_title') }}</a></p>
+</div>
+
+{% endblock %}
