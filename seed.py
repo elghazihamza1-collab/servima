@@ -61,6 +61,14 @@ with app.app_context():
     ):
         if col not in existing:
             db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {col} {typ}'))
+    existing_job = {c["name"] for c in inspect(db.engine).get_columns("job_request")}
+    for col, typ in (
+        ("counter_price", "INTEGER"),
+        ("counter_by", "INTEGER"),
+        ("counter_with", "INTEGER"),
+    ):
+        if col not in existing_job:
+            db.session.execute(text(f'ALTER TABLE "job_request" ADD COLUMN {col} {typ}'))
     db.session.commit()
 
     created, updated = 0, 0
