@@ -13,6 +13,7 @@ import os
 import re
 import secrets
 from datetime import datetime
+from urllib.parse import quote
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -425,7 +426,11 @@ def job_new():
 def job_detail(job_id):
     job = db.get_or_404(JobRequest, job_id)
     accepter = db.session.get(User, job.accepted_by) if job.accepted_by else None
-    return render_template("job_detail.html", job=job, accepted_worker=accepter)
+    share_text = "%s — %s MAD (%s)\n%s" % (
+        job.title, job.price, job.city_name, url_for("job_detail", job_id=job.id, _external=True),
+    )
+    wa_url = "https://wa.me/?text=" + quote(share_text)
+    return render_template("job_detail.html", job=job, accepted_worker=accepter, wa_url=wa_url)
 
 
 @app.route("/jobs/<int:job_id>/accept", methods=["POST"])
