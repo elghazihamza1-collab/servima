@@ -10,6 +10,12 @@
     <a class="btn btn-lg" href="{{ url_for('job_new') }}">{{ t('hero_cta_client') }}</a>
     <a class="btn btn-outline btn-lg" href="{{ url_for('register') }}">{{ t('hero_cta_worker') }}</a>
   </div>
+  {% if not current_user %}
+  <div class="guest-banner">
+    <span>👋 {{ t('guest_banner_text') }}</span>
+    <a class="btn btn-sm btn-green" href="{{ url_for('register') }}">{{ t('guest_banner_btn') }}</a>
+  </div>
+  {% endif %}
 </section>
 
 <section class="block">
