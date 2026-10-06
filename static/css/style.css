@@ -288,6 +288,7 @@ section.block { margin-block: 2.2rem; }
   padding: 1.5rem; margin-block: 1.5rem; }
 .auth-card h1 { font-size: 1.4rem; }
 .auth-alt { text-align: center; margin-block-start: 1rem; }
+.logout-link { color: var(--red); font-weight: 700; }
 
 /* ---------- desktop ---------- */
 @media (min-width: 768px) {
