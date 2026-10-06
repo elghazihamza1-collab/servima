@@ -560,12 +560,18 @@ def worker_detail(user_id):
         .order_by(Rating.created_at.desc())
         .all()
     )
+    # WhatsApp chat link (Moroccan numbers: 06.. -> 2126..)
+    wa_num = re.sub(r"\D", "", worker.phone or "")
+    if wa_num.startswith("0"):
+        wa_num = "212" + wa_num[1:]
+    worker_wa_url = "https://wa.me/%s?text=%s" % (wa_num, quote(t("wa_worker_msg", name=worker.name)))
     return render_template(
         "worker_detail.html",
         worker=worker,
         listings=listings,
         ratings=ratings,
         avg_rating=avg_rating(worker.id) or 0,
+        worker_wa_url=worker_wa_url,
     )
 
 
