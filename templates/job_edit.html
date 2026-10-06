@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ t('job_edit_title') }}{% endblock %}
+{% block content %}
+
+<div class="auth-card">
+  <h1>{{ t('job_edit_title') }}</h1>
+  <form action="{{ url_for('job_edit', job_id=job.id) }}" method="post" class="form">
+    <label>{{ t('f_jtitle') }}
+      <input type="text" name="title" required maxlength="120" value="{{ job.title }}">
+    </label>
+    <label>{{ t('f_jcategory') }}
+      <select name="category" required>
+        {% for c in categories %}
+        <option value="{{ c.key }}" {{ 'selected' if c.key == job.category_key else '' }}>{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>{{ t('f_jdesc') }}
+      <textarea name="description" rows="4" required>{{ job.description }}</textarea>
+    </label>
+    <label>{{ t('f_jprice') }}
+      <input type="number" name="price" min="1" required value="{{ job.price }}">
+      <span class="hint">{{ t('f_jprice_hint') }}</span>
+    </label>
+    <label>{{ t('f_jcity') }}
+      <select name="city" required>
+        {% for k, name in cities %}
+        <option value="{{ k }}" {{ 'selected' if k == job.city else '' }}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-block btn-lg btn-green" type="submit">{{ t('btn_save') }}</button>
+    <a class="btn btn-block btn-outline" href="{{ url_for('job_detail', job_id=job.id) }}">{{ t('btn_cancel') }}</a>
+  </form>
+</div>
+
+{% endblock %}
