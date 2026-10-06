@@ -4,11 +4,19 @@
 
 <section class="hero">
   <span class="free-pill">✦ {{ t('free_launch_note') }}</span>
-  <h1>{{ t('hero_title') }}</h1>
-  <p class="lede">{{ t('hero_subtitle') }}</p>
-  <div class="hero-ctas">
-    <a class="btn btn-lg" href="{{ url_for('job_new') }}">{{ t('hero_cta_client') }}</a>
-    <a class="btn btn-outline btn-lg" href="{{ url_for('register') }}">{{ t('hero_cta_worker') }}</a>
+  <div class="hero-row">
+    <div class="hero-text">
+      <h1>{{ t('hero_title') }}</h1>
+      <p class="lede">{{ t('hero_subtitle') }}</p>
+    </div>
+    <div class="hero-duo" aria-hidden="true">
+      <img src="{{ url_for('static', filename='img/mascot-male.png') }}" alt="" loading="lazy">
+      <img src="{{ url_for('static', filename='img/mascot-female.png') }}" alt="" loading="lazy">
+    </div>
+  </div>
+  <div class="hero-ctas compact">
+    <a class="btn" href="{{ url_for('job_new') }}">{{ t('hero_cta_client') }}</a>
+    <a class="btn btn-outline" href="{{ url_for('register') }}">{{ t('hero_cta_worker') }}</a>
   </div>
   {% if not current_user %}
   <div class="guest-banner">
@@ -16,10 +24,6 @@
     <a class="btn btn-sm btn-green" href="{{ url_for('register') }}">{{ t('guest_banner_btn') }}</a>
   </div>
   {% endif %}
-  <div class="share-banner">
-    <span>{{ t('share_title') }}</span>
-    <a class="btn btn-sm wa-btn" href="https://wa.me/?text={{ t('share_text')|urlencode }}" target="_blank" rel="noopener">💬 {{ t('share_btn') }}</a>
-  </div>
 </section>
 
 <section class="block">
@@ -39,6 +43,11 @@
     {% endfor %}
   </div>
 </section>
+
+<div class="share-banner">
+  <span>{{ t('share_title') }}</span>
+  <a class="btn btn-sm wa-btn" href="https://wa.me/?text={{ t('share_text')|urlencode }}" target="_blank" rel="noopener">💬 {{ t('share_btn') }}</a>
+</div>
 
 <section class="block">
   <div class="sec-head"><h2>{{ t('sec_how') }}</h2></div>
