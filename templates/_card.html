@@ -1,0 +1,15 @@
+{# reusable listing card; expects `l` in context #}
+<article class="card">
+  {% if l.photo %}
+    <img class="card-img" src="{{ url_for('uploaded_file', filename=l.photo) }}" alt="">
+  {% else %}
+    <div class="card-img card-img-ph">🛠️</div>
+  {% endif %}
+  <div class="card-body">
+    <span class="badge">{{ cat_name(l.category) }}</span>
+    <h3>{{ l.title }}</h3>
+    <p class="muted">{{ l.worker.name }} · {{ city_name(l.city) }}</p>
+    <p class="price">{{ l.price }} <small>{{ t('per_day') }}</small></p>
+    <a class="btn btn-sm" href="{{ url_for('listing_detail', listing_id=l.id) }}">{{ t('btn_view') }}</a>
+  </div>
+</article>

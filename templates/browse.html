@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ t('browse_title') }}{% endblock %}
+{% block content %}
+<h1>{{ t('browse_title') }}</h1>
+<form class="filters" action="{{ url_for('browse') }}" method="get">
+  <label>{{ t('f_search') }}<input type="text" name="q" value="{{ q }}"></label>
+  <label>{{ t('f_category') }}
+    <select name="category">
+      <option value="">{{ t('all_categories') }}</option>
+      {% for key, name in categories %}
+        <option value="{{ key }}" {{ 'selected' if key == category }}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>{{ t('f_city') }}
+    <select name="city">
+      <option value="">{{ t('all_cities') }}</option>
+      {% for key, name in cities %}
+        <option value="{{ key }}" {{ 'selected' if key == city }}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="btn" type="submit">{{ t('btn_filter') }}</button>
+</form>
+
+<p class="muted">{{ t('results_n', n=listings|length) }}</p>
+{% if listings %}
+  <div class="cards">{% for l in listings %}{% include "_card.html" %}{% endfor %}</div>
+{% else %}
+  <p>{{ t('no_results') }}</p>
+{% endif %}
+{% endblock %}

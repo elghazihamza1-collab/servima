@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }}{% endblock %}
+{% block content %}
+{% if listing.status == 'pending' %}
+  <div class="flash warn">{{ t('pending_notice') }}</div>
+{% endif %}
+<div class="detail">
+  <div class="detail-main">
+    {% if listing.photo %}
+      <img class="detail-img" src="{{ url_for('uploaded_file', filename=listing.photo) }}" alt="">
+    {% endif %}
+    <span class="badge">{{ cat_name(listing.category) }}</span>
+    <h1>{{ listing.title }}</h1>
+    <p class="price big">{{ listing.price }} <small>{{ t('per_day') }}</small></p>
+    <p class="muted">{{ city_name(listing.city) }}</p>
+    <p class="desc">{{ listing.description }}</p>
+    <h3>{{ t('about_worker') }}</h3>
+    <p><strong>{{ listing.worker.name }}</strong> · {{ listing.worker.phone }}<br>
+    <span class="muted">{{ t('member_since') }} {{ listing.worker.created_at.strftime('%Y-%m') }}</span></p>
+  </div>
+  <aside class="detail-side">
+    <h2>{{ t('listing_book_t') }}</h2>
+    <form action="{{ url_for('booking_new', listing_id=listing.id) }}" method="post" class="form">
+      <label>{{ t('form_name') }}<input type="text" name="name" required></label>
+      <label>{{ t('form_phone') }}<input type="tel" name="phone" required></label>
+      <label>{{ t('form_date') }}<input type="date" name="date" required></label>
+      <label>{{ t('form_message') }}<textarea name="message" rows="3"></textarea></label>
+      <button class="btn btn-lg" type="submit">{{ t('btn_send_request') }}</button>
+    </form>
+    <p class="muted small">💵 {{ t('cash_note') }}</p>
+  </aside>
+</div>
+{% endblock %}

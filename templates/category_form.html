@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ t('btn_add_cat') if not category else t('act_edit') }}{% endblock %}
+{% block content %}
+<h1>{{ t('btn_add_cat') if not category else t('act_edit') }}</h1>
+<form action="" method="post" enctype="multipart/form-data" class="form narrow">
+  {% if not category %}
+  <label>Key (slug, a-z 0-9 _)<input type="text" name="key" maxlength="40" placeholder="e.g. plumber"></label>
+  <p class="muted small">Leave empty to auto-generate from the English name.</p>
+  {% endif %}
+  <label>{{ t('f_name_ar') }}<input type="text" name="name_ar" value="{{ category.name_ar if category else '' }}" maxlength="80" required></label>
+  <label>{{ t('f_name_fr') }}<input type="text" name="name_fr" value="{{ category.name_fr if category else '' }}" maxlength="80" required></label>
+  <label>{{ t('f_name_en') }}<input type="text" name="name_en" value="{{ category.name_en if category else '' }}" maxlength="80" required></label>
+  {% if category and category.photo %}
+    <p>{{ t('current_photo') }}:<br><img class="thumb" src="{{ url_for('static', filename='img/categories/' + category.photo) }}" alt=""></p>
+  {% endif %}
+  <label>{{ t('cat_photo') }}<input type="file" name="photo" accept="image/*"></label>
+  <button class="btn btn-lg" type="submit">{{ t('btn_save') }}</button>
+  <a class="btn btn-outline" href="{{ url_for('admin') }}">{{ t('btn_cancel') }}</a>
+</form>
+{% endblock %}

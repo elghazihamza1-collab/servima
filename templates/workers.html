@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ t('workers_title') }}{% endblock %}
+{% block content %}
+
+<h1>{{ t('workers_title') }}</h1>
+
+<div class="workercards">
+  {% for w in workers %}
+  <a class="workercard" href="{{ url_for('worker_detail', user_id=w.id) }}">
+    <span class="avatar">
+      {% if w.photo %}<img src="{{ w.photo }}" alt="{{ w.name }}" loading="lazy" onerror="this.remove()">{% endif %}
+      {{ w.name[0] if w.name else '؟' }}
+    </span>
+    <span>
+      <h3>{{ w.name }}</h3>
+      <div class="trade">{{ w.trade_name }} · 📍 {{ w.city }}</div>
+      <div>
+        <span class="stars">{% for i in range(1,6) %}{{ '★' if i <= ((w.avg or 0)|round|int) else '☆' }}{% endfor %}</span>
+        <span class="small muted">({{ w.ratings_count or 0 }})</span>
+      </div>
+      {% if w.is_verified %}<span class="verified">✓ {{ t('verified') }}</span>{% endif %}
+    </span>
+  </a>
+  {% else %}
+  <div class="empty">{{ t('no_results') }}</div>
+  {% endfor %}
+</div>
+
+{% endblock %}

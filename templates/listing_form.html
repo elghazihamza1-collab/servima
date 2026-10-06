@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ t('form_listing_new') if not listing else t('form_listing_edit') }}{% endblock %}
+{% block content %}
+<h1>{{ t('form_listing_new') if not listing else t('form_listing_edit') }}</h1>
+<form action="" method="post" enctype="multipart/form-data" class="form narrow">
+  <label>{{ t('f_ltitle') }}<input type="text" name="title" value="{{ data.title or '' }}" maxlength="160" required></label>
+  <label>{{ t('f_lcategory') }}
+    <select name="category" required>
+      {% for key, name in categories %}
+        <option value="{{ key }}" {{ 'selected' if data.category == key }}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>{{ t('f_ldesc') }}<textarea name="description" rows="5" required>{{ data.description or '' }}</textarea></label>
+  <label>{{ t('f_lprice') }}<input type="number" name="price" min="1" value="{{ data.price or '' }}" required></label>
+  <p class="muted small">{{ t('f_lprice_hint') }}</p>
+  <label>{{ t('f_lcity') }}
+    <select name="city" required>
+      {% for key, name in cities %}
+        <option value="{{ key }}" {{ 'selected' if data.city == key }}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  {% if listing and listing.photo %}
+    <p>{{ t('current_photo') }}:<br><img class="thumb" src="{{ url_for('uploaded_file', filename=listing.photo) }}" alt=""></p>
+  {% endif %}
+  <label>{{ t('f_lphoto') }}<input type="file" name="photo" accept="image/*"></label>
+  <p class="muted small">{{ t('f_lphoto_hint') }}</p>
+  <button class="btn btn-lg" type="submit">{{ t('btn_save') }}</button>
+  <a class="btn btn-ghost" href="{{ url_for('dashboard') }}">{{ t('btn_cancel') }}</a>
+</form>
+{% endblock %}

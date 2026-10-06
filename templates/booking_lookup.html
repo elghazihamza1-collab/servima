@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ t('lookup_title') }}{% endblock %}
+{% block content %}
+<h1>{{ t('lookup_title') }}</h1>
+<form action="{{ url_for('booking_lookup') }}" method="post" class="form narrow">
+  <label>{{ t('ref_label') }}<input type="text" name="ref" placeholder="{{ t('lookup_ph') }}" required></label>
+  <button class="btn" type="submit">{{ t('btn_check') }}</button>
+</form>
+{% if tried %}
+  {% if booking %}
+    <div class="result">
+      <p><strong>{{ t('booking_for') }}:</strong> {{ booking.listing.title }} ({{ booking.listing.worker.name }})</p>
+      <p><strong>{{ t('status_label') }}:</strong>
+        {% if booking.status == 'pending' %}🕐 {{ t('st_pending') }}
+        {% elif booking.status == 'accepted' %}✅ {{ t('st_accepted') }}
+        {% else %}❌ {{ t('st_declined') }}{% endif %}
+      </p>
+    </div>
+  {% else %}
+    <p class="flash error">{{ t('not_found') }}</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

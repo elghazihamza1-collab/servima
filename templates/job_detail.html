@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block content %}
+
+<div class="detail" style="margin-block-start:1.2rem">
+  <div class="detail-main">
+    <div class="job-meta">
+      <span class="badge">{{ job.category_name }}</span>
+      <span>📍 {{ job.city_name }}</span>
+      <span class="muted small">🕐 {{ job.created_at }}</span>
+    </div>
+    <h1>{{ job.title }}</h1>
+    {% if job.description %}
+    <p class="desc">{{ job.description }}</p>
+    {% endif %}
+    <p class="muted small">👤 {{ t('posted_by') }}: {{ job.client_name }}</p>
+  </div>
+
+  <aside class="detail-side">
+    <div class="small muted">{{ t('proposed_price') }}</div>
+    <div class="price big">{{ job.price }} <small>MAD</small></div>
+
+    {% if job.status == 'accepted' %}
+      <p class="accepted-note">✓ {{ t('job_accepted_by_you') }}</p>
+      {% if job.show_phone and job.client_phone %}
+      <div class="phonebox">
+        <div class="small muted">{{ t('col_phone') }}</div>
+        <a href="tel:{{ job.client_phone }}">{{ job.client_phone }}</a>
+      </div>
+      {% endif %}
+    {% elif current_user %}
+      <form method="post" action="{{ url_for('job_accept', job_id=job.id) }}" style="margin-block-start:1rem">
+        <button class="btn btn-block btn-lg" type="submit">{{ t('btn_accept') }}</button>
+      </form>
+      <p class="hint center">{{ t('free_launch_note') }}</p>
+    {% else %}
+      <a class="btn btn-block" href="{{ url_for('login', next=url_for('job_detail', job_id=job.id)) }}" style="margin-block-start:1rem">{{ t('login_to_accept') }}</a>
+    {% endif %}
+  </aside>
+</div>
+
+{% endblock %}

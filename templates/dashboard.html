@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ t('dash_title') }}{% endblock %}
+{% block content %}
+
+<h1>{{ t('dash_title') }}</h1>
+<p class="muted">👤 {{ current_user.name }} · <span dir="ltr">{{ current_user.phone }}</span></p>
+<a class="btn btn-green" href="{{ url_for('job_new') }}">{{ t('nav_post_job') }}</a>
+
+<section class="dash-sec">
+  <h2>{{ t('my_posted_jobs') }}</h2>
+  <div class="mini-cards">
+    {% for job in posted_jobs %}
+    <div class="mini-card">
+      <h3><a href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a></h3>
+      <div class="job-meta">
+        <span class="badge">{{ job.category_name }}</span>
+        <span>📍 {{ job.city_name }}</span>
+        {% if job.status == 'accepted' %}<span class="badge red">✓ {{ t('job_accepted_by_you') }}</span>{% endif %}
+      </div>
+      <div class="jobcard-foot">
+        <span class="price">{{ job.price }} <small>MAD</small></span>
+        <span class="timeago">{{ job.created_at }}</span>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty">{{ t('no_jobs_yet') }}</div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="dash-sec">
+  <h2>{{ t('my_accepted_jobs') }}</h2>
+  <div class="mini-cards">
+    {% for job in accepted_jobs %}
+    <div class="mini-card">
+      <h3><a href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a></h3>
+      <div class="job-meta">
+        <span class="badge">{{ job.category_name }}</span>
+        <span>📍 {{ job.city_name }}</span>
+        <span class="muted small">👤 {{ t('posted_by') }}: {{ job.client_name }}</span>
+      </div>
+      <div class="jobcard-foot">
+        <span class="price">{{ job.price }} <small>MAD</small></span>
+        {% if job.client_phone %}<a class="btn btn-sm btn-green" href="tel:{{ job.client_phone }}" dir="ltr">📞 {{ job.client_phone }}</a>{% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty">{{ t('no_jobs_yet') }}</div>
+    {% endfor %}
+  </div>
+</section>
+
+{% if current_user.is_worker %}
+<section class="dash-sec">
+  <h2>{{ t('dash_listings') }}</h2>
+  <div class="mini-cards">
+    {% for l in listings %}
+    <div class="mini-card">
+      <h3>{{ l.title }}</h3>
+      <div class="job-meta">
+        <span class="badge">{{ l.category_name }}</span>
+        {% if l.price %}<span class="price">{{ l.price }} <small>MAD</small></span>{% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty">{{ t('no_listings') }}</div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ worker.name }}{% endblock %}
+{% block content %}
+
+<div class="profile-head">
+  <span class="avatar">
+    {% if worker.photo %}<img src="{{ worker.photo }}" alt="{{ worker.name }}" onerror="this.remove()">{% endif %}
+    {{ worker.name[0] if worker.name else '؟' }}
+  </span>
+  <div>
+    <h1 style="margin:0">{{ worker.name }}</h1>
+    <p class="muted" style="margin:.2rem 0">{{ worker.trade_name }} · 📍 {{ worker.city }}</p>
+    <p style="margin:.2rem 0">
+      <span class="stars">{% for i in range(1,6) %}{{ '★' if i <= (avg_rating|round|int) else '☆' }}{% endfor %}</span>
+      <span class="small muted">({{ ratings|length }})</span>
+      {% if worker.is_verified %}<span class="verified">✓ {{ t('verified') }}</span>{% endif %}
+    </p>
+    {% if worker.member_since %}<p class="small muted" style="margin:0">{{ t('member_since') }}: {{ worker.member_since }}</p>{% endif %}
+  </div>
+</div>
+
+{% if listings %}
+<h2>{{ t('work_gallery') }}</h2>
+<div class="gallery">
+  {% for l in listings %}
+    {% if l.photo %}<img src="{{ l.photo }}" alt="{{ l.title or '' }}" loading="lazy">{% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+<h2>{{ t('ratings_t') }}</h2>
+{% for r in ratings %}
+<div class="review">
+  <div class="stars">{% for i in range(1,6) %}{{ '★' if i <= r.stars else '☆' }}{% endfor %}</div>
+  {% if r.comment %}<p style="margin:.3rem 0">{{ r.comment }}</p>{% endif %}
+  <div class="who small muted">{{ r.author_name }}{% if r.created_at %} · {{ r.created_at }}{% endif %}</div>
+</div>
+{% else %}
+<p class="muted">{{ t('no_results') }}</p>
+{% endfor %}
+
+{% if current_user %}
+<h2>{{ t('rate_this_worker') }}</h2>
+<form action="{{ url_for('worker_rate', user_id=worker.id) }}" method="post" class="form narrow" style="margin-inline:0">
+  <label>{{ t('f_rating') }}
+    <select name="stars" required>
+      <option value="5">★★★★★ (5)</option>
+      <option value="4">★★★★☆ (4)</option>
+      <option value="3">★★★☆☆ (3)</option>
+      <option value="2">★★☆☆☆ (2)</option>
+      <option value="1">★☆☆☆☆ (1)</option>
+    </select>
+  </label>
+  <label>{{ t('f_comment_text') }}
+    <textarea name="comment" rows="3"></textarea>
+  </label>
+  <button class="btn btn-green" type="submit">{{ t('btn_submit_rating') }}</button>
+</form>
+{% endif %}
+
+{% endblock %}

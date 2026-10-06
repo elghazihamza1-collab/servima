@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ t('hero_title') }}{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <span class="free-pill">✦ {{ t('free_launch_note') }}</span>
+  <h1>{{ t('hero_title') }}</h1>
+  <p class="lede">{{ t('hero_subtitle') }}</p>
+  <div class="hero-ctas">
+    <a class="btn btn-lg" href="{{ url_for('job_new') }}">{{ t('hero_cta_client') }}</a>
+    <a class="btn btn-outline btn-lg" href="{{ url_for('register') }}">{{ t('hero_cta_worker') }}</a>
+  </div>
+</section>
+
+<section class="block">
+  <div class="sec-head">
+    <h2>{{ t('sec_categories') }}</h2>
+    <a href="{{ url_for('jobs') }}">{{ t('nav_jobs') }} ←</a>
+  </div>
+  <div class="catgrid">
+    {% for cat in categories[:8] %}
+    <a class="catcard" href="{{ url_for('jobs', category=cat.key) }}">
+      <span class="catimg">
+        <span class="catimg-ph">✦</span>
+        <img src="{{ url_for('static', filename='img/categories/' + cat.key + '.jpg') }}" alt="{{ cat.name }}" loading="lazy" onerror="this.remove()">
+      </span>
+      <span class="catname">{{ cat.name }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="block">
+  <div class="sec-head"><h2>{{ t('sec_how') }}</h2></div>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><h3>{{ t('hj1_t') }}</h3><p>{{ t('hj1_d') }}</p></div>
+    <div class="step"><span class="n">2</span><h3>{{ t('hj2_t') }}</h3><p>{{ t('hj2_d') }}</p></div>
+    <div class="step"><span class="n">3</span><h3>{{ t('hj3_t') }}</h3><p>{{ t('hj3_d') }}</p></div>
+  </div>
+</section>
+
+{% if latest_jobs %}
+<section class="block">
+  <div class="sec-head">
+    <h2>{{ t('open_jobs_n', n=latest_jobs|length) }}</h2>
+    <a href="{{ url_for('jobs') }}">{{ t('nav_jobs') }} ←</a>
+  </div>
+  <div class="jobcards">
+    {% for job in latest_jobs %}
+    <article class="jobcard">
+      <div class="jobcard-top">
+        <h3><a href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a></h3>
+      </div>
+      <div class="job-meta">
+        <span class="badge">{{ job.category_name }}</span>
+        <span>📍 {{ job.city_name }}</span>
+      </div>
+      <div class="jobcard-foot">
+        <span class="price">{{ job.price }} <small>MAD</small></span>
+        <span class="timeago">{{ job.created_at }}</span>
+        <a class="btn btn-sm" href="{{ url_for('job_detail', job_id=job.id) }}">{{ t('btn_view') }}</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

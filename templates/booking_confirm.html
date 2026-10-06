@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ t('booked_ok_t') }}{% endblock %}
+{% block content %}
+<div class="center">
+  <h1>✅ {{ t('booked_ok_t') }}</h1>
+  <p>{{ t('booked_ok_d') }}</p>
+  <p class="refcode">{{ booking.ref }}</p>
+  <p class="muted">{{ t('booking_for') }}: {{ listing.title }} ({{ listing.price }} {{ t('per_day') }})</p>
+  <a class="btn" href="{{ url_for('booking_lookup') }}">{{ t('btn_lookup') }}</a>
+  <a class="btn btn-ghost" href="{{ url_for('browse') }}">{{ t('nav_browse') }}</a>
+</div>
+{% endblock %}

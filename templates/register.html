@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ t('auth_reg_title') }}{% endblock %}
+{% block content %}
+
+<div class="auth-card">
+  <h1>{{ t('auth_reg_title') }}</h1>
+  <p class="muted">{{ t('auth_reg_sub') }}</p>
+  <form action="{{ url_for('register') }}" method="post" class="form">
+    <label>{{ t('f_name') }}
+      <input type="text" name="name" required autocomplete="name">
+    </label>
+    <label>{{ t('f_phone') }}
+      <input type="tel" name="phone" required dir="ltr" placeholder="06 XX XX XX XX" autocomplete="tel">
+      <span class="hint">{{ t('phone_hint') }}</span>
+    </label>
+    <label>{{ t('f_city') }}
+      <select name="city" required>
+        {% for k, name in cities %}
+        <option value="{{ k }}">{{ name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>{{ t('f_password') }}
+      <input type="password" name="password" required minlength="4" autocomplete="new-password">
+    </label>
+    <div>
+      <span style="font-weight:700">{{ t('account_type') }}</span>
+      <div class="radio-row" style="margin-block-start:.4rem">
+        <label class="radio-card"><input type="radio" name="account_type" value="client" checked> {{ t('type_client') }}</label>
+        <label class="radio-card"><input type="radio" name="account_type" value="worker" id="acc_worker"> {{ t('type_worker') }}</label>
+      </div>
+    </div>
+    <label id="trade_wrap" style="display:none">{{ t('f_trade') }}
+      <select name="trade">
+        {% for c in categories %}
+        <option value="{{ c.key }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-block btn-lg" type="submit">{{ t('btn_register') }}</button>
+  </form>
+  <p class="auth-alt"><a href="{{ url_for('login') }}">{{ t('have_account') }}</a></p>
+</div>
+
+<script>
+(function () {
+  var w = document.getElementById('acc_worker'), tw = document.getElementById('trade_wrap');
+  function sync() { tw.style.display = w.checked ? 'grid' : 'none'; }
+  document.querySelectorAll('input[name="account_type"]').forEach(function (r) { r.addEventListener('change', sync); });
+  sync();
+})();
+</script>
+
+{% endblock %}

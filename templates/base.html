@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'rtl' if is_rtl else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Servima{% endblock %} — Servima</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="{{ url_for('home') }}">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="2.4"><rect x="10" y="10" width="20" height="20"/><rect x="10" y="10" width="20" height="20" transform="rotate(45 20 20)"/><circle cx="20" cy="20" r="2.4" fill="#fff" stroke="none"/></g></svg>
+      Servima
+    </a>
+    <nav class="nav" aria-label="{{ t('nav_home') }}">
+      <a href="{{ url_for('home') }}">{{ t('nav_home') }}</a>
+      <a href="{{ url_for('jobs') }}">{{ t('nav_jobs') }}</a>
+      <a href="{{ url_for('workers') }}">{{ t('nav_workers') }}</a>
+      {% if current_user %}
+        <a href="{{ url_for('dashboard') }}">{{ t('nav_dashboard') }}</a>
+        {% if current_user.is_admin %}<a href="{{ url_for('admin') }}">{{ t('nav_admin') }}</a>{% endif %}
+        <a href="{{ url_for('logout') }}">{{ t('nav_logout') }}</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">{{ t('nav_login') }}</a>
+        <a href="{{ url_for('register') }}">{{ t('nav_join') }}</a>
+      {% endif %}
+    </nav>
+    <div class="langswitch" role="group" aria-label="{{ t('lang_label') }}">
+      {% for code in langs %}
+        <a href="{{ url_for('set_lang', code=code) }}" class="{{ 'active' if code == lang else '' }}">{{ code.upper() }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <div class="flashes">
+        {% for cat, msg in msgs %}
+          <div class="flash {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<nav class="bottomnav" aria-label="{{ t('nav_home') }}">
+  <a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint == 'home' else '' }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+    {{ t('nav_home') }}
+  </a>
+  <a href="{{ url_for('jobs') }}" class="{{ 'active' if request.endpoint in ('jobs','job_detail') else '' }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+    {{ t('nav_jobs') }}
+  </a>
+  <a href="{{ url_for('job_new') }}" class="post">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+    {{ t('nav_post_job') }}
+  </a>
+  {% if current_user %}
+  <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
+  {% else %}
+  <a href="{{ url_for('login') }}">
+  {% endif %}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
+    {{ t('nav_dashboard') }}
+  </a>
+</nav>
+
+<footer class="footer">
+  <div class="wrap">
+    <p><strong>Servima</strong> — {{ t('footer_tag') }}</p>
+    <p><span class="free-pill" style="margin:0">{{ t('free_launch_note') }}</span></p>
+    <p><a href="{{ url_for('terms') }}">{{ t('nav_terms') }}</a></p>
+  </div>
+</footer>
+</body>
+</html>

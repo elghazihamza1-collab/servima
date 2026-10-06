@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}{{ t('admin_title') }}{% endblock %}
+{% block content %}
+
+<h1>{{ t('admin_title') }}</h1>
+
+<h2>{{ t('admin_stats') }}</h2>
+<div class="statrow">
+  <div class="stat"><span class="n">{{ stats.users }}</span><span class="l">{{ t('stat_users') }}</span></div>
+  <div class="stat"><span class="n">{{ stats.workers }}</span><span class="l">{{ t('stat_workers') }}</span></div>
+  <div class="stat red"><span class="n">{{ stats.jobs }}</span><span class="l">{{ t('stat_jobs') }}</span></div>
+</div>
+
+<h2>{{ t('admin_users') }}</h2>
+<div class="tblwrap">
+<table class="tbl">
+  <tr>
+    <th>{{ t('col_name') }}</th><th>{{ t('col_phone') }}</th><th>{{ t('col_city') }}</th>
+    <th>{{ t('col_type') }}</th><th>{{ t('col_status') }}</th><th>{{ t('col_actions') }}</th>
+  </tr>
+  {% for u in users %}
+  <tr>
+    <td>{{ u.name }}</td>
+    <td dir="ltr">{{ u.phone }}</td>
+    <td>{{ u.city }}</td>
+    <td>{{ t('type_worker') if u.is_worker else t('type_client') }}</td>
+    <td>
+      {% if u.is_blocked %}<span class="badge red">⛔</span>
+      {% elif u.is_verified %}<span class="badge">✓ {{ t('verified') }}</span>
+      {% else %}<span class="badge gray">–</span>{% endif %}
+    </td>
+    <td class="actions">
+      {% if u.is_verified %}
+        <form method="post" action="{{ url_for('admin_user_unverify', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unverify') }}</button></form>
+      {% else %}
+        <form method="post" action="{{ url_for('admin_user_verify', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_verify') }}</button></form>
+      {% endif %}
+      {% if u.is_blocked %}
+        <form method="post" action="{{ url_for('admin_user_unblock', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unblock') }}</button></form>
+      {% else %}
+        <form method="post" action="{{ url_for('admin_user_block', user_id=u.id) }}"><button class="link danger" type="submit">{{ t('btn_block') }}</button></form>
+      {% endif %}
+      <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+
+<h2>{{ t('admin_jobs') }}</h2>
+<div class="tblwrap">
+<table class="tbl">
+  <tr>
+    <th>{{ t('th_title') }}</th><th>{{ t('col_client') }}</th><th>{{ t('col_city') }}</th>
+    <th>{{ t('th_price') }}</th><th>{{ t('th_status') }}</th><th>{{ t('col_actions') }}</th>
+  </tr>
+  {% for j in jobs %}
+  <tr>
+    <td><a href="{{ url_for('job_detail', job_id=j.id) }}">{{ j.title }}</a></td>
+    <td>{{ j.client_name }}<br><span class="small muted" dir="ltr">{{ j.client_phone }}</span></td>
+    <td>{{ j.city_name }}</td>
+    <td><strong>{{ j.price }}</strong> MAD</td>
+    <td>{{ j.status }}</td>
+    <td class="actions">
+      <form method="post" action="{{ url_for('admin_job_delete', job_id=j.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+
+<h2>{{ t('admin_cats') }}</h2>
+<div class="tblwrap">
+<table class="tbl">
+  <tr>
+    <th>{{ t('cat_photo') }}</th><th>{{ t('f_name_ar') }}</th><th>{{ t('f_name_fr') }}</th>
+    <th>{{ t('f_name_en') }}</th><th>{{ t('col_actions') }}</th>
+  </tr>
+  {% for c in categories %}
+  <tr>
+    <td>
+      {% if c.photo %}<img class="thumb" src="{{ c.photo }}" alt="">{% else %}–{% endif %}
+    </td>
+    <td>{{ c.name_ar }}</td>
+    <td>{{ c.name_fr }}</td>
+    <td>{{ c.name_en }}</td>
+    <td class="actions">
+      <a class="link" href="{{ url_for('admin_category_edit', key=c.key) }}">{{ t('act_edit') }}</a>
+      <form method="post" action="{{ url_for('admin_category_delete', key=c.key) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+
+<h3>{{ t('btn_add_cat') }}</h3>
+<form action="{{ url_for('admin_category_add') }}" method="post" enctype="multipart/form-data" class="form">
+  <label>{{ t('f_name_ar') }}<input type="text" name="name_ar" required></label>
+  <label>{{ t('f_name_fr') }}<input type="text" name="name_fr" required></label>
+  <label>{{ t('f_name_en') }}<input type="text" name="name_en" required></label>
+  <label>{{ t('cat_photo') }}<input type="file" name="photo" accept="image/*"></label>
+  <button class="btn btn-green" type="submit">{{ t('btn_add_cat') }}</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ t('jobs_title') }}{% endblock %}
+{% block content %}
+
+<h1>{{ t('jobs_title') }}</h1>
+<p class="muted">{{ t('jobs_subtitle') }}</p>
+
+<form class="filters" method="get" action="{{ url_for('jobs') }}">
+  <label>{{ t('f_category') }}
+    <select name="category">
+      <option value="">{{ t('all_categories') }}</option>
+      {% for c in categories %}
+      <option value="{{ c.key }}" {{ 'selected' if category == c.key else '' }}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>{{ t('f_city') }}
+    <select name="city">
+      <option value="">{{ t('all_cities') }}</option>
+      {% for k, name in cities %}
+      <option value="{{ k }}" {{ 'selected' if city == k else '' }}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>{{ t('f_search') }}
+    <input type="search" name="q" value="{{ q or '' }}" placeholder="…">
+  </label>
+  <button class="btn btn-green" type="submit">{{ t('btn_filter') }}</button>
+</form>
+
+<p class="muted"><strong>{{ t('open_jobs_n', n=jobs|length) }}</strong></p>
+
+{% set catkey = {} %}
+{% for c in categories %}{% set _ = catkey.update({c.name: c.key}) %}{% endfor %}
+
+<div class="jobcards">
+  {% for job in jobs %}
+  {% set ck = catkey.get(job.category_name) %}
+  <article class="jobcard">
+    <div class="jobcard-top">
+      <h3><a href="{{ url_for('job_detail', job_id=job.id) }}">{{ job.title }}</a></h3>
+      <span class="job-ico">
+        {% if ck %}<img src="{{ url_for('static', filename='img/categories/' + ck + '.jpg') }}" alt="" loading="lazy" onerror="this.remove()">{% endif %}
+        🔧
+      </span>
+    </div>
+    <div class="job-meta">
+      <span class="badge">{{ job.category_name }}</span>
+      <span>📍 {{ job.city_name }}</span>
+    </div>
+    <div class="jobcard-foot">
+      <div>
+        <div class="small muted">{{ t('proposed_price') }}</div>
+        <span class="price">{{ job.price }} <small>MAD <span class="small">{{ t('per_job') }}</span></small></span>
+      </div>
+      <span class="timeago">🕐 {{ job.created_at }}</span>
+      {% if job.status == 'accepted' %}
+        <span class="accepted-note">✓ {{ t('job_accepted_by_you') }}</span>
+      {% elif current_user %}
+        <form method="post" action="{{ url_for('job_accept', job_id=job.id) }}">
+          <button class="btn" type="submit">{{ t('btn_accept') }}</button>
+        </form>
+      {% else %}
+        <a class="btn btn-outline btn-sm" href="{{ url_for('login', next=url_for('jobs')) }}">{{ t('login_to_accept') }}</a>
+      {% endif %}
+    </div>
+  </article>
+  {% else %}
+  <div class="empty">{{ t('no_results') }}</div>
+  {% endfor %}
+</div>
+
+{% endblock %}
