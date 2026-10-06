@@ -53,7 +53,7 @@
         <div class="small muted">{{ t('proposed_price') }}</div>
         <span class="price">{{ job.price }} <small>MAD <span class="small">{{ t('per_job') }}</span></small></span>
       </div>
-      <span class="timeago">🕐 {{ job.created_at }}</span>
+      <span class="timeago">🕐 {{ job.created_at|timeago }}</span>
       {% if job.status == 'accepted' %}
         <span class="accepted-note">✓ {{ t('job_accepted_by_you') }}</span>
       {% elif current_user %}

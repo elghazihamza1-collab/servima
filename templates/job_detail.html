@@ -7,7 +7,7 @@
     <div class="job-meta">
       <span class="badge">{{ job.category_name }}</span>
       <span>📍 {{ job.city_name }}</span>
-      <span class="muted small">🕐 {{ job.created_at }}</span>
+      <span class="muted small">🕐 {{ job.created_at|timeago }}</span>
     </div>
     <h1>{{ job.title }}</h1>
     {% if can_edit %}

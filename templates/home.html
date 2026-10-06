@@ -76,7 +76,7 @@
       </div>
       <div class="jobcard-foot">
         <span class="price">{{ job.price }} <small>MAD</small></span>
-        <span class="timeago">{{ job.created_at }}</span>
+        <span class="timeago">{{ job.created_at|timeago }}</span>
         <a class="btn btn-sm" href="{{ url_for('job_detail', job_id=job.id) }}">{{ t('btn_view') }}</a>
       </div>
     </article>
