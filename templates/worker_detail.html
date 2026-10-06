@@ -16,6 +16,13 @@
       {% if worker.is_verified %}<span class="verified">✓ {{ t('verified') }}</span>{% endif %}
     </p>
     {% if worker.member_since %}<p class="small muted" style="margin:0">{{ t('member_since') }}: {{ worker.member_since }}</p>{% endif %}
+    <p style="margin:.6rem 0 0">
+      {% if current_user %}
+      <a class="btn btn-green" href="tel:{{ worker.phone }}">📞 {{ t('call_now') }}: <span dir="ltr">{{ worker.phone }}</span></a>
+      {% else %}
+      <a class="btn btn-outline" href="{{ url_for('login', next=url_for('worker_detail', user_id=worker.id)) }}">📞 {{ t('login_to_call') }}</a>
+      {% endif %}
+    </p>
   </div>
 </div>
 
