@@ -1200,6 +1200,11 @@ def terms():
     return render_template("terms.html")
 
 
+@app.route("/faq")
+def faq():
+    return render_template("faq.html")
+
+
 # ---------------------------------------------------------------- admin
 @app.route("/admin")
 @admin_required
