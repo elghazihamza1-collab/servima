@@ -6,8 +6,8 @@
   <label>{{ t('f_ltitle') }}<input type="text" name="title" value="{{ data.title or '' }}" maxlength="160" required></label>
   <label>{{ t('f_lcategory') }}
     <select name="category" required>
-      {% for key, name in categories %}
-        <option value="{{ key }}" {{ 'selected' if data.category == key }}>{{ name }}</option>
+      {% for c in categories %}
+        <option value="{{ c.key }}" {{ 'selected' if data.category == c.key }}>{{ c.name }}</option>
       {% endfor %}
     </select>
   </label>
