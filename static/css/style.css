@@ -289,6 +289,14 @@ section.block { margin-block: 2.2rem; }
 .auth-card h1 { font-size: 1.4rem; }
 .auth-alt { text-align: center; margin-block-start: 1rem; }
 .logout-link { color: var(--red); font-weight: 700; }
+.share-banner{display:flex;align-items:center;justify-content:center;gap:.8rem;flex-wrap:wrap;background:#e8f5e9;border:1px dashed #25d366;border-radius:14px;padding:.75rem 1.1rem;margin:1rem auto 0;max-width:640px;font-size:.95rem;text-align:center}
+.wa-btn{background:#25d366}
+.wa-btn:hover{background:#1da851;color:#fff}
+.faq{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:.6rem}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.9rem 1.1rem}
+.faq summary{font-weight:700;cursor:pointer;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq details p{margin:.6rem 0 0;color:var(--muted);line-height:1.7}
 
 /* ---------- desktop ---------- */
 @media (min-width: 768px) {
