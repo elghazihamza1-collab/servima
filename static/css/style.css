@@ -325,3 +325,7 @@ section.block { margin-block: 2.2rem; }
 .notif-bell { font-size: 1.5rem; line-height: 1; }
 .notif-body { flex: 1; }
 .notif-text { font-weight: 600; margin-block-end: .3rem; }
+
+/* WhatsApp button */
+.btn-wa { background: #25D366; color: #fff; }
+.btn-wa:hover { filter: brightness(.94); color: #fff; }
