@@ -158,6 +158,20 @@ class Notification(db.Model):
     job = db.relationship("JobRequest")
 
 
+class Message(db.Model):
+    """In-site chat: text/photo messages between the client and the accepted worker."""
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey("job_request.id"), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    text = db.Column(db.Text)
+    image_file = db.Column(db.String(255))
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    job = db.relationship("JobRequest", backref="messages")
+    sender = db.relationship("User")
+
+
 class Visit(db.Model):
     """Lightweight page-view log for the admin visitor counter."""
     id = db.Column(db.Integer, primary_key=True)
@@ -493,7 +507,12 @@ def job_detail(job_id):
         job.title, job.price, job.city_name, url_for("job_detail", job_id=job.id, _external=True),
     )
     wa_url = "https://wa.me/?text=" + quote(share_text)
-    return render_template("job_detail.html", job=job, accepted_worker=accepter, wa_url=wa_url)
+    me = current_user()
+    can_chat = bool(me and job.status == "accepted" and (
+        job.client_phone == me.phone or (job.accepted_by and job.accepted_by == me.id)
+    ))
+    return render_template("job_detail.html", job=job, accepted_worker=accepter, wa_url=wa_url,
+                           can_chat=can_chat)
 
 
 @app.route("/jobs/<int:job_id>/accept", methods=["POST"])
@@ -532,6 +551,98 @@ def job_done(job_id):
         db.session.commit()
         flash(t("msg_job_done"), "ok")
     return redirect(url_for("job_detail", job_id=job.id))
+
+
+# ---------------------------------------------------------------- in-site chat
+def _chat_party(job, u):
+    """True if u is the client or the accepted worker of this job."""
+    return bool(
+        u
+        and job.status == "accepted"
+        and (job.client_phone == u.phone or (job.accepted_by and job.accepted_by == u.id))
+    )
+
+
+def _chat_other_party(job, u):
+    """Return the User on the other side of the chat (for notifications)."""
+    if job.accepted_by and job.accepted_by == u.id:
+        return User.query.filter_by(phone=job.client_phone).first()
+    return db.session.get(User, job.accepted_by) if job.accepted_by else None
+
+
+@app.route("/jobs/<int:job_id>/chat")
+@login_required
+def job_chat(job_id):
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    if not _chat_party(job, u):
+        abort(403)
+    # mark the other side's messages as read
+    Message.query.filter_by(job_id=job.id, is_read=False).filter(
+        Message.sender_id != u.id
+    ).update({"is_read": True})
+    db.session.commit()
+    messages = (
+        Message.query.filter_by(job_id=job.id)
+        .order_by(Message.created_at.asc(), Message.id.asc())
+        .all()
+    )
+    other = _chat_other_party(job, u)
+    return render_template("chat.html", job=job, messages=messages, other=other, me=u)
+
+
+@app.route("/jobs/<int:job_id>/chat/messages")
+@login_required
+def job_chat_messages(job_id):
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    if not _chat_party(job, u):
+        abort(403)
+    after = request.args.get("after", 0, type=int)
+    messages = (
+        Message.query.filter(Message.job_id == job.id, Message.id > after)
+        .order_by(Message.id.asc())
+        .all()
+    )
+    return {
+        "messages": [
+            {
+                "id": m.id,
+                "mine": m.sender_id == u.id,
+                "text": m.text or "",
+                "image": url_for("uploaded_file", filename=m.image_file) if m.image_file else "",
+                "time": m.created_at.strftime("%H:%M") if m.created_at else "",
+            }
+            for m in messages
+        ]
+    }
+
+
+@app.route("/jobs/<int:job_id>/chat/send", methods=["POST"])
+@login_required
+def job_chat_send(job_id):
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    if not _chat_party(job, u):
+        abort(403)
+    text = (request.form.get("text") or "").strip()
+    image_file = None
+    photo = request.files.get("photo")
+    if photo and photo.filename:
+        image_file = save_upload(photo)
+    if not text and not image_file:
+        return redirect(url_for("job_chat", job_id=job.id))
+    msg = Message(job_id=job.id, sender_id=u.id, text=text or None, image_file=image_file)
+    db.session.add(msg)
+    # free in-app notification for the other party (drives the 🔔 badge)
+    try:
+        other = _chat_other_party(job, u)
+        if other and other.id != u.id:
+            db.session.add(Notification(user_id=other.id, job_id=job.id, kind="new_message"))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+    return redirect(url_for("job_chat", job_id=job.id))
 
 
 @app.route("/jobs/<int:job_id>/cancel", methods=["POST"])
