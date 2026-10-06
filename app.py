@@ -16,7 +16,7 @@ from datetime import datetime
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, send_from_directory, abort, flash,
+    session, send_from_directory, abort, flash, Response,
 )
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
@@ -1065,6 +1065,28 @@ def admin_listing_action(listing_id, action):
         abort(404)
     db.session.commit()
     return redirect(url_for("admin"))
+
+
+# ---------------------------------------------------------------- SEO helpers
+@app.route("/robots.txt")
+def robots_txt():
+    body = "User-agent: *\nAllow: /\nSitemap: %ssitemap.xml\n" % request.host_url
+    return Response(body, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    pages = ["", "jobs", "workers", "register", "login", "terms"]
+    urls = "\n".join(
+        "  <url><loc>%s%s</loc><changefreq>daily</changefreq></url>" % (request.host_url, p)
+        for p in pages
+    )
+    body = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + urls + "\n</urlset>"
+    )
+    return Response(body, mimetype="application/xml")
 
 
 # ---------------------------------------------------------------- main
