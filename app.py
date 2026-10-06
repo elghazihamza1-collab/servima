@@ -565,7 +565,7 @@ def worker_detail(user_id):
         worker=worker,
         listings=listings,
         ratings=ratings,
-        avg_rating=avg_rating(worker.id),
+        avg_rating=avg_rating(worker.id) or 0,
     )
 
 
