@@ -87,9 +87,9 @@
   </a>
   {% endif %}
   {% else %}
-  <a href="{{ url_for('login') }}">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
-    {{ t('nav_dashboard') }}
+  <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' else '' }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+    {{ t('nav_login_short') }}
   </a>
   {% endif %}
 </nav>

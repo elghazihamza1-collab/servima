@@ -41,6 +41,7 @@
   </form>
 
   <p class="auth-alt"><a href="{{ url_for('change_password') }}">{{ t('change_pw_title') }}</a></p>
+  <p class="auth-alt"><a href="{{ url_for('logout') }}" class="logout-link">🚪 {{ t('nav_logout') }}</a></p>
 </div>
 
 {% endblock %}
