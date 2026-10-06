@@ -15,11 +15,11 @@
 <section class="block">
   <div class="sec-head">
     <h2>{{ t('sec_categories') }}</h2>
-    <a href="{{ url_for('jobs') }}">{{ t('nav_jobs') }} ←</a>
+    <a href="{{ url_for('workers') }}">{{ t('nav_workers') }} ←</a>
   </div>
   <div class="catgrid">
     {% for cat in categories %}
-    <a class="catcard" href="{{ url_for('jobs', category=cat.key) }}">
+    <a class="catcard" href="{{ url_for('workers', trade=cat.key) }}">
       <span class="catimg">
         <span class="catimg-ph">✦</span>
         <img src="{{ url_for('static', filename='img/categories/' + cat.key + '.jpg') }}" alt="{{ cat.name }}" loading="lazy" onerror="this.remove()">
