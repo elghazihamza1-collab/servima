@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ t('job_new_title') }}{% endblock %}
+{% block content %}
+
+<div class="auth-card">
+  <h1>{{ t('job_new_title') }}</h1>
+  <span class="free-pill">✦ {{ t('free_launch_note') }}</span>
+  <form action="{{ url_for('job_new') }}" method="post" class="form">
+    <label>{{ t('f_jtitle') }}
+      <input type="text" name="title" required maxlength="120">
+    </label>
+    <label>{{ t('f_jcategory') }}
+      <select name="category" required>
+        {% for c in categories %}
+        <option value="{{ c.key }}">{{ c.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>{{ t('f_jdesc') }}
+      <textarea name="description" rows="4" required></textarea>
+    </label>
+    <label>{{ t('f_jprice') }}
+      <input type="number" name="price" min="1" required>
+      <span class="hint">{{ t('f_jprice_hint') }}</span>
+    </label>
+    <label>{{ t('f_jcity') }}
+      <select name="city" required>
+        {% for k, name in cities %}
+        <option value="{{ k }}">{{ name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% if current_user %}
+    <p class="muted small">👤 {{ t('posted_by') }}: {{ current_user.name }} — <span dir="ltr">{{ current_user.phone }}</span></p>
+    {% endif %}
+    <button class="btn btn-block btn-lg" type="submit">{{ t('btn_publish') }}</button>
+  </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ t('auth_login_title') }}{% endblock %}
+{% block content %}
+
+<div class="auth-card">
+  <h1>{{ t('auth_login_title') }}</h1>
+  <form action="{{ url_for('login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" method="post" class="form">
+    <label>{{ t('f_phone') }}
+      <input type="tel" name="phone" required dir="ltr" autocomplete="tel">
+    </label>
+    <label>{{ t('f_password') }}
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+    <button class="btn btn-block btn-lg" type="submit">{{ t('btn_login') }}</button>
+  </form>
+  <p class="auth-alt"><a href="{{ url_for('register') }}">{{ t('no_account') }}</a></p>
+</div>
+
+{% endblock %}
