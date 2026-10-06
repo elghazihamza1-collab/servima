@@ -164,6 +164,15 @@ section.block { margin-block: 2.2rem; }
   border-radius: 999px; padding: .12rem .6rem; margin: 0 auto .55rem; }
 .catcount i { width: .45rem; height: .45rem; border-radius: 50%; background: var(--green); }
 
+/* inDrive-style counter-offer */
+.offer-box { background: var(--green-soft); border: 1px solid var(--green);
+  border-radius: var(--radius); padding: .9rem; margin-block: .8rem; }
+.offer-box p { margin: 0 0 .6rem; font-weight: 700; }
+.offer-delta { font-size: .8rem; font-weight: 400; color: var(--muted, #777); }
+.offer-form input { padding: .6rem .8rem; border: 1px solid var(--line);
+  border-radius: var(--radius); font-size: 1rem; background: var(--card); color: var(--ink); }
+.offer-form label { display: block; margin-block-end: .3rem; }
+
 /* floating post-job button (appears on scroll) */
 .fab { position: fixed; inset-inline-end: 1rem; bottom: 5.5rem; z-index: 60;
   width: 3.4rem; height: 3.4rem; border-radius: 50%; background: var(--green); color: #fff;
