@@ -39,13 +39,15 @@
       {% if can_chat %}
       <a class="btn btn-block" href="{{ url_for('job_chat', job_id=job.id) }}" style="margin-block-start:.6rem">💬 {{ t('chat_button') }}</a>
       {% endif %}
-    {% elif current_user %}
+    {% elif job.status == 'done' and can_chat %}
+      <a class="btn btn-block" href="{{ url_for('job_chat', job_id=job.id) }}" style="margin-block-start:.6rem">💬 {{ t('chat_button') }}</a>
+    {% elif not current_user %}
+      <a class="btn btn-block" href="{{ url_for('login', next=url_for('job_detail', job_id=job.id)) }}" style="margin-block-start:1rem">{{ t('login_to_accept') }}</a>
+    {% elif current_user.phone != job.client_phone %}
       <form method="post" action="{{ url_for('job_accept', job_id=job.id) }}" style="margin-block-start:1rem">
         <button class="btn btn-block btn-lg" type="submit">{{ t('btn_accept') }}</button>
       </form>
       <p class="hint center">{{ t('free_launch_note') }}</p>
-    {% else %}
-      <a class="btn btn-block" href="{{ url_for('login', next=url_for('job_detail', job_id=job.id)) }}" style="margin-block-start:1rem">{{ t('login_to_accept') }}</a>
     {% endif %}
 
     <a class="btn btn-block btn-whatsapp" href="{{ wa_url }}" target="_blank" rel="noopener" style="margin-block-start:.6rem">
