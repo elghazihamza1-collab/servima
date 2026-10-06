@@ -40,8 +40,11 @@
     <button class="btn btn-block btn-lg btn-green" type="submit">{{ t('btn_save') }}</button>
   </form>
 
-  <p class="auth-alt"><a href="{{ url_for('change_password') }}">{{ t('change_pw_title') }}</a></p>
-  <p class="auth-alt"><a href="{{ url_for('logout') }}" class="logout-link">🚪 {{ t('nav_logout') }}</a></p>
+  <nav class="account-menu">
+    <a href="{{ url_for('dashboard') }}"><span>🎛️ {{ t('nav_dashboard') }}</span></a>
+    <a href="{{ url_for('change_password') }}"><span>🔑 {{ t('change_pw_title') }}</span></a>
+    <a href="{{ url_for('logout') }}" class="logout-link"><span>🚪 {{ t('nav_logout') }}</span></a>
+  </nav>
 </div>
 
 {% endblock %}
