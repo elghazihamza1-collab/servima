@@ -11,6 +11,24 @@
   <div class="stat red"><span class="n">{{ stats.jobs }}</span><span class="l">{{ t('stat_jobs') }}</span></div>
 </div>
 
+<h2>{{ t('stat_visitors') }}</h2>
+<div class="statrow">
+  <div class="stat"><span class="n">{{ stats.visitors_today }}</span><span class="l">{{ t('stat_visitors_today') }}</span></div>
+  <div class="stat"><span class="n">{{ stats.visitors_week }}</span><span class="l">{{ t('stat_visitors_week') }}</span></div>
+  <div class="stat"><span class="n">{{ stats.pageviews_week }}</span><span class="l">{{ t('stat_pageviews_week') }}</span></div>
+</div>
+{% if top_pages %}
+<h2>{{ t('stat_top_pages') }}</h2>
+<div class="tblwrap">
+<table class="tbl">
+  <tr><th>{{ t('col_page') }}</th><th>{{ t('col_views') }}</th></tr>
+  {% for path, n in top_pages %}
+  <tr><td dir="ltr" style="text-align:start">{{ path }}</td><td>{{ n }}</td></tr>
+  {% endfor %}
+</table>
+</div>
+{% endif %}
+
 <h2>{{ t('admin_users') }}</h2>
 <div class="tblwrap">
 <table class="tbl">
