@@ -23,6 +23,7 @@ STRINGS = {
         "phone_locked_hint": "Your phone number is your login and can\u2019t be changed.",
         "nav_admin": "Admin",
         "nav_logout": "Log out",
+        "nav_login_short": "Log in",
         "nav_terms": "Terms",
         "lang_label": "Language",
         # home
@@ -331,6 +332,7 @@ STRINGS = {
         "phone_locked_hint": "Votre num\u00e9ro est votre identifiant de connexion et ne peut pas \u00eatre modifi\u00e9.",
         "nav_admin": "Admin",
         "nav_logout": "Déconnexion",
+        "nav_login_short": "Connexion",
         "nav_terms": "Conditions",
         "lang_label": "Langue",
         "hero_title": "Trouvez des prestataires de confiance au Maroc",
@@ -629,6 +631,7 @@ STRINGS = {
         "phone_locked_hint": "\u0631\u0642\u0645 \u0647\u0627\u062a\u0641\u0643 \u0647\u0648 \u0647\u0648\u064a\u0629 \u062f\u062e\u0648\u0644\u0643 \u0648\u0644\u0627 \u064a\u0645\u0643\u0646 \u062a\u063a\u064a\u064a\u0631\u0647.",
         "nav_admin": "الإدارة",
         "nav_logout": "تسجيل الخروج",
+        "nav_login_short": "دخول",
         "nav_terms": "الشروط",
         "lang_label": "اللغة",
         "hero_title": "اعثر على حرفيين موثوقين في المغرب",
