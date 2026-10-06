@@ -72,11 +72,7 @@
     {{ t('nav_post_job') }}
   </a>
   {% if current_user %}
-  <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>
-    {{ t('nav_dashboard') }}
-  </a>
-  <a href="{{ url_for('profile') }}" class="{{ 'active' if request.endpoint in ('profile','profile_update','change_password') else '' }}">
+  <a href="{{ url_for('profile') }}" class="{{ 'active' if request.endpoint in ('profile','profile_update','change_password','dashboard') else '' }}">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.4 1.7-2 3-2s2.4.6 3 2"/><path d="M14 9.5h5M14 13h5"/></svg>
     {{ t('nav_profile') }}
   </a>
