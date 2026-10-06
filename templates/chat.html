@@ -5,11 +5,21 @@
 <div class="chatwrap">
   <div class="chead">
     <a class="cback" href="{{ url_for('job_detail', job_id=job.id) }}" aria-label="←">←</a>
+    {% if other and other.is_worker %}
+    <a class="chead-link" href="{{ url_for('worker_detail', user_id=other.id) }}">
+      <div class="avatar">{{ (other.name or '?')[:1] }}</div>
+      <div class="cinfo">
+        <div class="cname">{{ other.name }}</div>
+        <div class="csub">{{ job.title }}</div>
+      </div>
+    </a>
+    {% else %}
     <div class="avatar">{{ (other.name or '?')[:1] }}</div>
     <div class="cinfo">
       <div class="cname">{{ other.name if other else job.client_name }}</div>
       <div class="csub">{{ job.title }}</div>
     </div>
+    {% endif %}
   </div>
 
   <div class="cbody" id="cbody">
