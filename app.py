@@ -12,7 +12,7 @@ Run:  pip install -r requirements.txt
 import os
 import re
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import quote
 
 from flask import (
@@ -158,6 +158,14 @@ class Notification(db.Model):
     job = db.relationship("JobRequest")
 
 
+class Visit(db.Model):
+    """Lightweight page-view log for the admin visitor counter."""
+    id = db.Column(db.Integer, primary_key=True)
+    path = db.Column(db.String(255), nullable=False)
+    ip = db.Column(db.String(45))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+
 class Listing(db.Model):
     """Worker service listings / portfolio (kept from v1)."""
     id = db.Column(db.Integer, primary_key=True)
@@ -255,6 +263,24 @@ def inject_i18n():
         "current_user": me,
         "notif_count": notif_count,
     }
+
+
+_BOT_HINTS = ("bot", "crawl", "spider", "slurp", "uptime", "monitor", "pingdom")
+
+
+@app.before_request
+def log_visit():
+    """Count real page views for the admin dashboard (skip files & bots)."""
+    if request.path.startswith(("/static/", "/uploads/")):
+        return
+    ua = (request.headers.get("User-Agent") or "").lower()
+    if any(h in ua for h in _BOT_HINTS):
+        return
+    try:
+        db.session.add(Visit(path=request.path[:255], ip=(request.remote_addr or "")[:45]))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 
 # ---------------------------------------------------------------- helpers
@@ -958,11 +984,28 @@ def terms():
 @app.route("/admin")
 @admin_required
 def admin():
+    today = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    week_ago = datetime.utcnow() - timedelta(days=7)
     stats = {
         "users": User.query.count(),
         "workers": User.query.filter_by(is_worker=True).count(),
         "jobs": JobRequest.query.count(),
+        "visitors_today": db.session.query(
+            db.func.count(db.func.distinct(Visit.ip))
+        ).filter(Visit.created_at >= today).scalar() or 0,
+        "visitors_week": db.session.query(
+            db.func.count(db.func.distinct(Visit.ip))
+        ).filter(Visit.created_at >= week_ago).scalar() or 0,
+        "pageviews_week": Visit.query.filter(Visit.created_at >= week_ago).count(),
     }
+    top_pages = (
+        db.session.query(Visit.path, db.func.count(Visit.id).label("n"))
+        .filter(Visit.created_at >= week_ago)
+        .group_by(Visit.path)
+        .order_by(db.desc("n"))
+        .limit(5)
+        .all()
+    )
     users = User.query.order_by(User.created_at.desc()).all()
     jobs = JobRequest.query.order_by(JobRequest.created_at.desc()).all()
     categories = Category.query.order_by(Category.id).all()
@@ -973,7 +1016,7 @@ def admin():
     )
     return render_template(
         "admin.html", stats=stats, users=users, jobs=jobs,
-        categories=categories, pending=pending,
+        categories=categories, pending=pending, top_pages=top_pages,
     )
 
 
