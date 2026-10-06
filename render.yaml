@@ -1,0 +1,24 @@
+# Render Blueprint — deploys Servima (Flask) + free PostgreSQL in one click.
+# After Elghazi creates his Render account: New > Blueprint > connect the repo.
+services:
+  - type: web
+    name: servima
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app --workers 2 --timeout 120"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: servima-db
+          property: connectionString
+      - key: PYTHON_VERSION
+        value: 3.12.0
+
+databases:
+  - name: servima-db
+    plan: free
+    databaseName: servima
+    user: servima

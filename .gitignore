@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+instance/
+*.db
+*.db.old
+*.old
+mockups/
