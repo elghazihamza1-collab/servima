@@ -97,5 +97,15 @@
     <p><a href="{{ url_for('terms') }}">{{ t('nav_terms') }}</a> · <a href="{{ url_for('faq') }}">{{ t('nav_faq') }}</a></p>
   </div>
 </footer>
+<a href="{{ url_for('job_new') }}" class="fab" id="fabPost" title="{{ t('nav_post_job') }}" aria-label="{{ t('nav_post_job') }}">+</a>
+<script>
+(function(){
+  var fab = document.getElementById('fabPost');
+  if(!fab) return;
+  var onScroll = function(){ fab.classList.toggle('show', window.scrollY > 420); };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+</script>
 </body>
 </html>

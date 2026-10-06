@@ -39,6 +39,9 @@
         <img src="{{ url_for('static', filename='img/categories/' + cat.key + '.jpg') }}" alt="{{ cat.name }}" loading="lazy" onerror="this.remove()">
       </span>
       <span class="catname">{{ cat.name }}</span>
+      {% if worker_counts.get(cat.key, 0) > 0 %}
+      <span class="catcount"><i></i>{{ worker_counts.get(cat.key) }}</span>
+      {% endif %}
     </a>
     {% endfor %}
   </div>
