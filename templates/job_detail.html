@@ -10,6 +10,14 @@
       <span class="muted small">🕐 {{ job.created_at }}</span>
     </div>
     <h1>{{ job.title }}</h1>
+    {% if can_edit %}
+    <div class="owner-actions" style="display:flex;gap:.5rem;margin-block:.6rem">
+      <a class="btn btn-sm btn-outline" href="{{ url_for('job_edit', job_id=job.id) }}">✏️ {{ t('btn_edit') }}</a>
+      <form method="post" action="{{ url_for('job_delete', job_id=job.id) }}" onsubmit="return confirm('{{ t('confirm_delete_job') }}')">
+        <button class="btn btn-sm" type="submit">🗑️ {{ t('btn_delete') }}</button>
+      </form>
+    </div>
+    {% endif %}
     {% if job.description %}
     <p class="desc">{{ job.description }}</p>
     {% endif %}
