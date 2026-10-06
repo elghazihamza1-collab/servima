@@ -72,6 +72,7 @@
 {% if current_user.is_worker %}
 <section class="dash-sec">
   <h2>{{ t('dash_listings') }}</h2>
+  <a class="btn btn-green" href="{{ url_for('listing_new') }}" style="margin-block-end:1rem">📸 {{ t('add_listing') }}</a>
   <div class="mini-cards">
     {% for l in listings %}
     <div class="mini-card">
