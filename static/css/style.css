@@ -359,3 +359,4 @@ section.block { margin-block: 2.2rem; }
 }
 .chead-link{display:flex;align-items:center;gap:.6rem;color:#fff;text-decoration:none;min-width:0;flex:1}
 .chead-link .cinfo{color:#fff}
+.profile-photo-lg{width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid var(--green,#007a3d)}
