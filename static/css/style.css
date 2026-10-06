@@ -357,3 +357,5 @@ section.block { margin-block: 2.2rem; }
   .ctime{color:#8696a0}
   .cday{background:#1f2c34;color:#aebac1}
 }
+.chead-link{display:flex;align-items:center;gap:.6rem;color:#fff;text-decoration:none;min-width:0;flex:1}
+.chead-link .cinfo{color:#fff}
