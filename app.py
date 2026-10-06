@@ -718,7 +718,25 @@ def dashboard():
         accepted_jobs=accepted_jobs,
         listings=listings,
         requests=requests,
+        categories=cat_dicts(get_lang()),
     )
+
+
+@app.route("/become-worker", methods=["POST"])
+@login_required
+def become_worker():
+    """inDrive-style: a client activates worker mode (or updates their trade)."""
+    u = current_user()
+    trade = request.form.get("trade", "").strip()
+    if not Category.query.filter_by(key=trade).first():
+        flash(t("err_required"), "error")
+        return redirect(url_for("dashboard"))
+    first_time = not u.is_worker
+    u.is_worker = True
+    u.trade = trade
+    db.session.commit()
+    flash(t("msg_now_worker") if first_time else t("msg_trade_updated"), "ok")
+    return redirect(url_for("dashboard"))
 
 
 def _listing_form_data(listing=None):
