@@ -6,6 +6,7 @@ Safe to re-run: existing categories (matched by key) are updated, not duplicated
 Photo files (<key>.jpg) live in static/img/categories/ and are managed separately.
 """
 from app import db, app, Category
+from sqlalchemy import inspect, text
 
 # (key, ar, fr, en)
 CATEGORIES = [
@@ -50,6 +51,17 @@ assert len(CATEGORIES) == 35, f"expected 35 categories, got {len(CATEGORIES)}"
 
 with app.app_context():
     db.create_all()
+
+    # lightweight migration for existing DBs (safe to re-run, any backend)
+    existing = {c["name"] for c in inspect(db.engine).get_columns("user")}
+    for col, typ in (
+        ("photo_file", "VARCHAR(255)"),
+        ("bio", "TEXT"),
+        ("experience_years", "INTEGER"),
+    ):
+        if col not in existing:
+            db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {col} {typ}'))
+    db.session.commit()
 
     created, updated = 0, 0
     for key, ar, fr, en in CATEGORIES:

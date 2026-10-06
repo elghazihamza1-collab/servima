@@ -67,6 +67,9 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_verified = db.Column(db.Boolean, default=False)  # "trusted" badge
     is_blocked = db.Column(db.Boolean, default=False)
+    photo_file = db.Column(db.String(255))   # optional profile photo (uploads/)
+    bio = db.Column(db.Text)                 # optional short bio
+    experience_years = db.Column(db.Integer)  # optional years of experience
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     listings = db.relationship("Listing", backref="worker", cascade="all, delete-orphan")
 
@@ -87,7 +90,9 @@ class User(db.Model):
 
     @property
     def photo(self):
-        # worker imagery comes from their listings; templates guard with {% if %}
+        # optional uploaded profile photo; templates guard with {% if %}
+        if self.photo_file:
+            return url_for("uploaded_file", filename=self.photo_file)
         return None
 
 
@@ -742,6 +747,29 @@ def become_worker():
     u.trade = trade
     db.session.commit()
     flash(t("msg_now_worker") if first_time else t("msg_trade_updated"), "ok")
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/profile", methods=["POST"])
+@login_required
+def profile_update():
+    """LinkedIn-style optional profile: photo, bio, years of experience."""
+    u = current_user()
+    bio = request.form.get("bio", "").strip()
+    exp_raw = request.form.get("experience_years", "").strip()
+    try:
+        exp = int(exp_raw) if exp_raw else None
+        assert exp is None or 0 <= exp <= 60
+    except (ValueError, AssertionError):
+        exp = None
+    photo = save_upload(request.files.get("photo"))
+    if photo:
+        _delete_file(app.config["UPLOAD_FOLDER"], u.photo_file)
+        u.photo_file = photo
+    u.bio = bio or None
+    u.experience_years = exp
+    db.session.commit()
+    flash(t("msg_profile_updated"), "ok")
     return redirect(url_for("dashboard"))
 
 
