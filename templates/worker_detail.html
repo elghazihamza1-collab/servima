@@ -16,6 +16,8 @@
       {% if worker.is_verified %}<span class="verified">✓ {{ t('verified') }}</span>{% endif %}
     </p>
     {% if worker.member_since %}<p class="small muted" style="margin:0">{{ t('member_since') }}: {{ worker.member_since }}</p>{% endif %}
+    {% if worker.experience_years is not none %}<p class="small" style="margin:.2rem 0">🏆 {{ t('f_experience') }}: {{ worker.experience_years }}</p>{% endif %}
+    {% if worker.bio %}<p style="margin:.4rem 0">{{ worker.bio }}</p>{% endif %}
     <p style="margin:.6rem 0 0">
       {% if current_user %}
       <a class="btn btn-green" href="tel:{{ worker.phone }}">📞 {{ t('call_now') }}: <span dir="ltr">{{ worker.phone }}</span></a>

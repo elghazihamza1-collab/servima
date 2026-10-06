@@ -25,6 +25,24 @@
   </form>
 </section>
 
+{% if current_user.is_worker %}
+<section class="dash-sec">
+  <h2>{{ t('profile_title') }}</h2>
+  <form method="post" action="{{ url_for('profile_update') }}" enctype="multipart/form-data" class="filters">
+    <label>📷 {{ t('f_photo') }} <span class="muted small">({{ t('optional') }})</span>
+      <input type="file" name="photo" accept="image/*">
+    </label>
+    <label>📝 {{ t('f_bio') }} <span class="muted small">({{ t('optional') }})</span>
+      <textarea name="bio" rows="2" maxlength="300" placeholder="{{ t('f_bio_ph') }}">{{ current_user.bio or '' }}</textarea>
+    </label>
+    <label>🏆 {{ t('f_experience') }} <span class="muted small">({{ t('optional') }})</span>
+      <input type="number" name="experience_years" min="0" max="60" value="{{ current_user.experience_years or '' }}">
+    </label>
+    <button class="btn btn-green" type="submit">{{ t('btn_save') }}</button>
+  </form>
+</section>
+{% endif %}
+
 <section class="dash-sec">
   <h2>{{ t('my_posted_jobs') }}</h2>
   <div class="mini-cards">
