@@ -473,11 +473,18 @@ def home():
         "workers": User.query.filter_by(is_worker=True).count(),
         "jobs": JobRequest.query.filter_by(status="open").count(),
     }
+    worker_counts = dict(
+        db.session.query(User.trade, db.func.count(User.id))
+        .filter(User.is_worker.is_(True), User.is_blocked.is_(False), User.trade.isnot(None))
+        .group_by(User.trade)
+        .all()
+    )
     return render_template(
         "home.html",
         categories=cat_dicts(lang),
         latest_jobs=latest_jobs,
         stats=stats,
+        worker_counts=worker_counts,
     )
 
 
