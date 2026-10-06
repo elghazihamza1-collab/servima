@@ -33,7 +33,7 @@
 <div class="review">
   <div class="stars">{% for i in range(1,6) %}{{ '★' if i <= r.stars else '☆' }}{% endfor %}</div>
   {% if r.comment %}<p style="margin:.3rem 0">{{ r.comment }}</p>{% endif %}
-  <div class="who small muted">{{ r.author_name }}{% if r.created_at %} · {{ r.created_at }}{% endif %}</div>
+  <div class="who small muted">{{ r.rater_name }}{% if r.created_at %} · {{ r.created_at }}{% endif %}</div>
 </div>
 {% else %}
 <p class="muted">{{ t('no_results') }}</p>
