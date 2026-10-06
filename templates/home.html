@@ -16,6 +16,10 @@
     <a class="btn btn-sm btn-green" href="{{ url_for('register') }}">{{ t('guest_banner_btn') }}</a>
   </div>
   {% endif %}
+  <div class="share-banner">
+    <span>{{ t('share_title') }}</span>
+    <a class="btn btn-sm wa-btn" href="https://wa.me/?text={{ t('share_text')|urlencode }}" target="_blank" rel="noopener">💬 {{ t('share_btn') }}</a>
+  </div>
 </section>
 
 <section class="block">

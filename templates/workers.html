@@ -16,7 +16,7 @@
       <div class="trade">{{ w.trade_name }} · 📍 {{ w.city }}</div>
       <div>
         <span class="stars">{% for i in range(1,6) %}{{ '★' if i <= ((w.avg or 0)|round|int) else '☆' }}{% endfor %}</span>
-        <span class="small muted">({{ w.ratings_count or 0 }})</span>
+        <span class="small muted">({{ w.rating_count or 0 }})</span>
       </div>
       {% if w.is_verified %}<span class="verified">✓ {{ t('verified') }}</span>{% endif %}
     </span>

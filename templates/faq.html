@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ t('faq_title') }}{% endblock %}
+{% block content %}
+
+<h1>{{ t('faq_title') }}</h1>
+
+<div class="faq">
+  <details open>
+    <summary>{{ t('faq_q1') }}</summary>
+    <p>{{ t('faq_a1') }}</p>
+  </details>
+  <details>
+    <summary>{{ t('faq_q2') }}</summary>
+    <p>{{ t('faq_a2') }}</p>
+  </details>
+  <details>
+    <summary>{{ t('faq_q3') }}</summary>
+    <p>{{ t('faq_a3') }}</p>
+  </details>
+  <details>
+    <summary>{{ t('faq_q4') }}</summary>
+    <p>{{ t('faq_a4') }}</p>
+  </details>
+  <details>
+    <summary>{{ t('faq_q5') }}</summary>
+    <p>{{ t('faq_a5') }}</p>
+  </details>
+  <details>
+    <summary>{{ t('faq_q6') }}</summary>
+    <p>{{ t('faq_a6') }}</p>
+  </details>
+</div>
+
+{% endblock %}
