@@ -18,6 +18,18 @@
       </form>
     </div>
     {% endif %}
+    {% if job.status == 'accepted' and current_user and (current_user.is_admin or job.client_phone == current_user.phone or (job.accepted_by and job.accepted_by == current_user.id)) %}
+    <div class="owner-actions" style="display:flex;gap:.5rem;margin-block:.6rem">
+      <form method="post" action="{{ url_for('job_done', job_id=job.id) }}">
+        <button class="btn btn-sm btn-green" type="submit">✅ {{ t('btn_mark_done') }}</button>
+      </form>
+      {% if current_user.is_admin or job.client_phone == current_user.phone %}
+      <form method="post" action="{{ url_for('job_cancel', job_id=job.id) }}" onsubmit="return confirm('{{ t('confirm_cancel_job') }}')">
+        <button class="btn btn-sm btn-outline" type="submit">❌ {{ t('btn_cancel_job') }}</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endif %}
     {% if job.description %}
     <p class="desc">{{ job.description }}</p>
     {% endif %}
