@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ t('chat_title') }}{% endblock %}
+{% block content %}
+
+<div class="chatwrap">
+  <div class="chead">
+    <a class="cback" href="{{ url_for('job_detail', job_id=job.id) }}" aria-label="←">←</a>
+    <div class="avatar">{{ (other.name or '?')[:1] }}</div>
+    <div class="cinfo">
+      <div class="cname">{{ other.name if other else job.client_name }}</div>
+      <div class="csub">{{ job.title }}</div>
+    </div>
+  </div>
+
+  <div class="cbody" id="cbody">
+    {% if not messages %}
+    <div class="cday">{{ t('chat_empty') }}</div>
+    {% endif %}
+    {% for m in messages %}
+    <div class="msg {{ 'me' if m.sender_id == me.id else 'them' }}" data-id="{{ m.id }}">
+      {% if m.image_file %}
+      <a href="{{ url_for('uploaded_file', filename=m.image_file) }}" target="_blank" rel="noopener">
+        <img class="cimg" src="{{ url_for('uploaded_file', filename=m.image_file) }}" alt="" loading="lazy">
+      </a>
+      {% endif %}
+      {% if m.text %}<p class="ctext">{{ m.text }}</p>{% endif %}
+      <span class="ctime">{{ m.created_at.strftime('%H:%M') if m.created_at else '' }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <form class="cfoot" method="post" action="{{ url_for('job_chat_send', job_id=job.id) }}" enctype="multipart/form-data">
+    <label class="cattach" title="{{ t('chat_photo') }}" aria-label="{{ t('chat_photo') }}">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <input type="file" name="photo" accept="image/*" hidden>
+    </label>
+    <input class="cinput" type="text" name="text" placeholder="{{ t('chat_placeholder') }}" autocomplete="off" maxlength="2000">
+    <button class="csend" type="submit" aria-label="{{ t('chat_send') }}">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff" style="transform:scaleX(-1)"><path d="M2.7 21.3l19.3-9.3L2.7 2.7l-.01 6.53L16.4 12 2.69 14.77l.01 6.53z"/></svg>
+    </button>
+  </form>
+</div>
+
+<script>
+(function () {
+  var body = document.getElementById('cbody');
+  var jobId = {{ job.id }};
+  function lastId() {
+    var msgs = body.querySelectorAll('.msg');
+    return msgs.length ? parseInt(msgs[msgs.length - 1].getAttribute('data-id'), 10) : 0;
+  }
+  function scrollDown() { body.scrollTop = body.scrollHeight; }
+  scrollDown();
+  setInterval(function () {
+    fetch('/jobs/' + jobId + '/chat/messages?after=' + lastId(), {credentials: 'same-origin'})
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.messages || !data.messages.length) return;
+        var empty = body.querySelector('.cday'); if (empty) empty.remove();
+        data.messages.forEach(function (m) {
+          var div = document.createElement('div');
+          div.className = 'msg ' + (m.mine ? 'me' : 'them');
+          div.setAttribute('data-id', m.id);
+          if (m.image) {
+            var a = document.createElement('a');
+            a.href = m.image; a.target = '_blank'; a.rel = 'noopener';
+            var img = document.createElement('img');
+            img.className = 'cimg'; img.src = m.image; img.loading = 'lazy'; img.alt = '';
+            a.appendChild(img); div.appendChild(a);
+          }
+          if (m.text) {
+            var p = document.createElement('p');
+            p.className = 'ctext'; p.textContent = m.text;
+            div.appendChild(p);
+          }
+          var s = document.createElement('span');
+          s.className = 'ctime'; s.textContent = m.time;
+          div.appendChild(s);
+          body.appendChild(div);
+        });
+        scrollDown();
+      })
+      .catch(function () {});
+  }, 5000);
+})();
+</script>
+
+{% endblock %}

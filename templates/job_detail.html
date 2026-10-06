@@ -28,6 +28,9 @@
         <a href="tel:{{ job.client_phone }}">{{ job.client_phone }}</a>
       </div>
       {% endif %}
+      {% if can_chat %}
+      <a class="btn btn-block" href="{{ url_for('job_chat', job_id=job.id) }}" style="margin-block-start:.6rem">💬 {{ t('chat_button') }}</a>
+      {% endif %}
     {% elif current_user %}
       <form method="post" action="{{ url_for('job_accept', job_id=job.id) }}" style="margin-block-start:1rem">
         <button class="btn btn-block btn-lg" type="submit">{{ t('btn_accept') }}</button>

@@ -7,11 +7,13 @@
 {% if notifs %}
 <div class="notif-list">
   {% for n in notifs %}
-  <a class="notif-card {{ '' if n.is_read else 'unread' }}" href="{{ url_for('job_detail', job_id=n.job_id) if n.job_id else url_for('jobs') }}">
+  <a class="notif-card {{ '' if n.is_read else 'unread' }}" href="{{ url_for('job_chat', job_id=n.job_id) if n.kind == 'new_message' and n.job_id else (url_for('job_detail', job_id=n.job_id) if n.job_id else url_for('jobs')) }}">
     <div class="notif-bell">🔔</div>
     <div class="notif-body">
       <div class="notif-text">
-        {% if n.job %}
+        {% if n.kind == 'new_message' and n.job %}
+          {{ t('notif_new_message', title=n.job.title) }}
+        {% elif n.job %}
           {{ t('notif_new_job', title=n.job.title, price=n.job.price, city=n.job.city_name) }}
         {% else %}
           {{ t('notif_new_job_generic') }}
