@@ -140,6 +140,19 @@ class JobRequest(db.Model):
                            or (self.accepted_by and self.accepted_by == u.id)))
 
 
+class Notification(db.Model):
+    """Free in-app notifications: a worker is notified of new jobs in their trade+city."""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey("job_request.id"), nullable=True)
+    kind = db.Column(db.String(20), default="new_job")
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship("User", backref="notifications")
+    job = db.relationship("JobRequest")
+
+
 class Listing(db.Model):
     """Worker service listings / portfolio (kept from v1)."""
     id = db.Column(db.Integer, primary_key=True)
@@ -217,6 +230,13 @@ def avg_rating(worker_id):
 @app.context_processor
 def inject_i18n():
     lang = get_lang()
+    me = current_user()
+    notif_count = 0
+    if me:
+        try:
+            notif_count = Notification.query.filter_by(user_id=me.id, is_read=False).count()
+        except Exception:
+            notif_count = 0
     return {
         "t": t,
         "lang": lang,
@@ -227,7 +247,8 @@ def inject_i18n():
         "all_categories": Category.query.order_by(Category.id).all(),
         "cities": [(k, city_name(k, lang)) for k in CITY_KEYS],
         "avg_rating": avg_rating,
-        "current_user": current_user(),
+        "current_user": me,
+        "notif_count": notif_count,
     }
 
 
@@ -413,6 +434,17 @@ def job_new():
         )
         db.session.add(job)
         db.session.commit()
+        # free in-app notifications: alert matching workers (same trade + city)
+        try:
+            workers = User.query.filter_by(
+                is_worker=True, is_blocked=False, trade=category_key, city=city,
+            ).all()
+            for w in workers:
+                if w.id != u.id:
+                    db.session.add(Notification(user_id=w.id, job_id=job.id))
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
         flash(t("msg_job_posted"), "ok")
         return redirect(url_for("job_detail", job_id=job.id))
     return render_template(
@@ -638,6 +670,21 @@ def logout():
 
 
 # ---------------------------------------------------------------- dashboard
+@app.route("/notifications")
+@login_required
+def notifications():
+    u = current_user()
+    notifs = (
+        Notification.query.filter_by(user_id=u.id)
+        .order_by(Notification.created_at.desc())
+        .limit(50)
+        .all()
+    )
+    Notification.query.filter_by(user_id=u.id, is_read=False).update({"is_read": True})
+    db.session.commit()
+    return render_template("notifications.html", notifs=notifs)
+
+
 @app.route("/dashboard")
 @login_required
 def dashboard():
