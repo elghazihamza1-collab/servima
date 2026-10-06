@@ -256,6 +256,69 @@ def avg_rating(worker_id):
     return round(sum(r.stars for r in ratings) / len(ratings), 1)
 
 
+@app.template_filter("timeago")
+def timeago_filter(dt):
+    """Human relative time in the current language, e.g. 'منذ ساعتين'."""
+    if not dt:
+        return ""
+    lang = get_lang()
+    try:
+        secs = int((datetime.utcnow() - dt).total_seconds())
+    except Exception:
+        return ""
+    if secs < 0:
+        secs = 0
+    if secs < 60:
+        return {"ar": "الآن", "fr": "à l'instant", "en": "just now"}.get(lang, "just now")
+    if lang == "ar":
+        def ar(n, one, two, few, many):
+            if n == 1:
+                return "منذ " + one
+            if n == 2:
+                return "منذ " + two
+            if 3 <= n <= 10:
+                return "منذ %d %s" % (n, few)
+            return "منذ %d %s" % (n, many)
+        if secs < 3600:
+            return ar(secs // 60, "دقيقة", "دقيقتين", "دقائق", "دقيقة")
+        if secs < 86400:
+            return ar(secs // 3600, "ساعة", "ساعتين", "ساعات", "ساعة")
+        if secs < 86400 * 7:
+            return ar(secs // 86400, "يوم", "يومين", "أيام", "يوماً")
+        if secs < 86400 * 30:
+            return ar(secs // (86400 * 7), "أسبوع", "أسبوعين", "أسابيع", "أسبوعاً")
+        if secs < 86400 * 365:
+            return ar(secs // (86400 * 30), "شهر", "شهرين", "أشهر", "شهراً")
+        return dt.strftime("%d/%m/%Y")
+    if lang == "fr":
+        def fr(n, one, many):
+            return "il y a %d %s" % (n, one if n == 1 else many)
+        if secs < 3600:
+            return fr(secs // 60, "minute", "minutes")
+        if secs < 86400:
+            return fr(secs // 3600, "heure", "heures")
+        if secs < 86400 * 7:
+            return fr(secs // 86400, "jour", "jours")
+        if secs < 86400 * 30:
+            return fr(secs // (86400 * 7), "semaine", "semaines")
+        if secs < 86400 * 365:
+            return fr(secs // (86400 * 30), "mois", "mois")
+        return dt.strftime("%d/%m/%Y")
+    def en(n, one):
+        return "%d %s ago" % (n, one if n == 1 else one + "s")
+    if secs < 3600:
+        return en(secs // 60, "minute")
+    if secs < 86400:
+        return en(secs // 3600, "hour")
+    if secs < 86400 * 7:
+        return en(secs // 86400, "day")
+    if secs < 86400 * 30:
+        return en(secs // (86400 * 7), "week")
+    if secs < 86400 * 365:
+        return en(secs // (86400 * 30), "month")
+    return dt.strftime("%d/%m/%Y")
+
+
 @app.context_processor
 def inject_i18n():
     lang = get_lang()
