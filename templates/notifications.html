@@ -13,6 +13,12 @@
       <div class="notif-text">
         {% if n.kind == 'new_message' and n.job %}
           {{ t('notif_new_message', title=n.job.title) }}
+        {% elif n.kind == 'counter_offer' and n.job and n.job.counter_price %}
+          {{ t('notif_counter_offer', title=n.job.title, price=n.job.counter_price) }}
+        {% elif n.kind == 'offer_accepted' and n.job %}
+          {{ t('notif_offer_accepted', title=n.job.title, price=n.job.price) }}
+        {% elif n.kind == 'offer_declined' and n.job %}
+          {{ t('notif_offer_declined', title=n.job.title) }}
         {% elif n.job %}
           {{ t('notif_new_job', title=n.job.title, price=n.job.price, city=n.job.city_name) }}
         {% else %}
