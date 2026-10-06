@@ -511,8 +511,11 @@ def job_detail(job_id):
     can_chat = bool(me and job.status == "accepted" and (
         job.client_phone == me.phone or (job.accepted_by and job.accepted_by == me.id)
     ))
+    can_edit = bool(me and job.status == "open" and (
+        job.client_phone == me.phone or me.is_admin
+    ))
     return render_template("job_detail.html", job=job, accepted_worker=accepter, wa_url=wa_url,
-                           can_chat=can_chat)
+                           can_chat=can_chat, can_edit=can_edit)
 
 
 @app.route("/jobs/<int:job_id>/accept", methods=["POST"])
@@ -657,6 +660,65 @@ def job_cancel(job_id):
         db.session.commit()
         flash(t("msg_job_cancelled"), "ok")
     return redirect(url_for("job_detail", job_id=job.id))
+
+
+def _job_owner(job, u):
+    """True if u posted this job (or is admin)."""
+    return bool(u and (u.is_admin or job.client_phone == u.phone))
+
+
+@app.route("/jobs/<int:job_id>/edit", methods=["GET", "POST"])
+@login_required
+def job_edit(job_id):
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    # edit allowed only while the job is still open (not accepted yet)
+    if not _job_owner(job, u) or job.status != "open":
+        abort(403)
+    lang = get_lang()
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        description = request.form.get("description", "").strip()
+        category_key = request.form.get("category", "").strip()
+        city = request.form.get("city", "").strip()
+        try:
+            price = int(request.form.get("price", "0"))
+            assert price > 0
+        except (ValueError, AssertionError):
+            price = 0
+        cat_ok = bool(Category.query.filter_by(key=category_key).first())
+        if not (title and description and cat_ok and city in CITY_KEYS and price):
+            flash(t("err_required"), "error")
+        else:
+            job.title = title
+            job.description = description
+            job.category_key = category_key
+            job.city = city
+            job.price = price
+            db.session.commit()
+            flash(t("msg_job_updated"), "ok")
+            return redirect(url_for("job_detail", job_id=job.id))
+    return render_template(
+        "job_edit.html", job=job,
+        categories=cat_dicts(lang),
+        cities=[(k, city_name(k, lang)) for k in CITY_KEYS],
+    )
+
+
+@app.route("/jobs/<int:job_id>/delete", methods=["POST"])
+@login_required
+def job_delete(job_id):
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    # delete allowed only while the job is still open (not accepted yet)
+    if not _job_owner(job, u) or job.status != "open":
+        abort(403)
+    Message.query.filter_by(job_id=job.id).delete()
+    Notification.query.filter_by(job_id=job.id).delete()
+    db.session.delete(job)
+    db.session.commit()
+    flash(t("msg_job_deleted"), "ok")
+    return redirect(url_for("jobs"))
 
 
 # ---------------------------------------------------------------- workers
