@@ -27,6 +27,12 @@
         <a href="{{ url_for('register') }}">{{ t('nav_join') }}</a>
       {% endif %}
     </nav>
+    {% if current_user %}
+    <a href="{{ url_for('notifications') }}" class="bell" aria-label="{{ t('notif_title') }}" title="{{ t('notif_title') }}">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      {% if notif_count %}<span class="bell-badge">{{ notif_count }}</span>{% endif %}
+    </a>
+    {% endif %}
     <div class="langswitch" role="group" aria-label="{{ t('lang_label') }}">
       {% for code in langs %}
         <a href="{{ url_for('set_lang', code=code) }}" class="{{ 'active' if code == lang else '' }}">{{ code.upper() }}</a>

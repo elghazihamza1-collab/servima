@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ t('notif_title') }}{% endblock %}
+{% block content %}
+
+<h1>{{ t('notif_title') }}</h1>
+
+{% if notifs %}
+<div class="notif-list">
+  {% for n in notifs %}
+  <a class="notif-card {{ '' if n.is_read else 'unread' }}" href="{{ url_for('job_detail', job_id=n.job_id) if n.job_id else url_for('jobs') }}">
+    <div class="notif-bell">🔔</div>
+    <div class="notif-body">
+      <div class="notif-text">
+        {% if n.job %}
+          {{ t('notif_new_job', title=n.job.title, price=n.job.price, city=n.job.city_name) }}
+        {% else %}
+          {{ t('notif_new_job_generic') }}
+        {% endif %}
+      </div>
+      <div class="muted small">{{ n.created_at.strftime('%Y-%m-%d %H:%M') if n.created_at else '' }}</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="muted center" style="margin-block:2rem">{{ t('notif_empty') }}</p>
+{% endif %}
+
+{% endblock %}
