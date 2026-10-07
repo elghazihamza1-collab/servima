@@ -44,7 +44,7 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
 }
 .brand { display: inline-flex; align-items: center; gap: .5rem; color: #fff;
   text-decoration: none; font-weight: 800; font-size: 1.35rem; letter-spacing: .2px; }
-.brand svg { width: 30px; height: 30px; flex: none; }
+.brand svg { height: 42px; width: auto; flex: none; }
 .nav { display: none; gap: 1rem; align-items: center; margin-inline-start: auto; }
 .nav a { color: #fff; text-decoration: none; font-size: .95rem; opacity: .95; }
 .nav a:hover { opacity: 1; text-decoration: underline; }
