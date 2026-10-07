@@ -352,6 +352,9 @@ def inject_i18n():
 
 _BOT_HINTS = ("bot", "crawl", "spider", "slurp", "uptime", "monitor", "pingdom")
 
+# Sanity cap for MAD prices (blocks absurd values like 999999999999).
+MAX_PRICE = 10_000_000
+
 # Friendly Arabic names for the admin "top pages" table (instead of raw paths).
 _PAGE_TITLES = {
     "/": "الرئيسية",
@@ -597,7 +600,7 @@ def job_new():
         city = request.form.get("city", "").strip()
         try:
             price = int(request.form.get("price", "0"))
-            assert price > 0
+            assert 0 < price <= MAX_PRICE
         except (ValueError, AssertionError):
             price = 0
         cat_ok = bool(Category.query.filter_by(key=category_key).first())
@@ -694,7 +697,7 @@ def job_offer(job_id):
     else:
         try:
             price = int(request.form.get("price", "0"))
-            assert price > 0
+            assert 0 < price <= MAX_PRICE
         except (ValueError, AssertionError):
             price = 0
         if not price:
@@ -725,7 +728,7 @@ def job_offer_counter(job_id):
         abort(403)  # only the addressed party may counter
     try:
         price = int(request.form.get("price", "0"))
-        assert price > 0
+        assert 0 < price <= MAX_PRICE
     except (ValueError, AssertionError):
         flash(t("err_required"), "error")
         return redirect(url_for("job_detail", job_id=job.id))
@@ -937,7 +940,7 @@ def job_edit(job_id):
         city = request.form.get("city", "").strip()
         try:
             price = int(request.form.get("price", "0"))
-            assert price > 0
+            assert 0 < price <= MAX_PRICE
         except (ValueError, AssertionError):
             price = 0
         cat_ok = bool(Category.query.filter_by(key=category_key).first())
@@ -1294,7 +1297,7 @@ def listing_new():
         data = _listing_form_data()
         try:
             price = int(data["price"])
-            assert price > 0
+            assert 0 < price <= MAX_PRICE
         except (ValueError, AssertionError):
             price = 0
         if not (data["title"] and data["category"] in cats
@@ -1334,7 +1337,7 @@ def listing_edit(listing_id):
         data = _listing_form_data(listing)
         try:
             price = int(data["price"])
-            assert price > 0
+            assert 0 < price <= MAX_PRICE
         except (ValueError, AssertionError):
             price = 0
         if not (data["title"] and data["category"] in cats
@@ -1764,6 +1767,12 @@ def sitemap_xml():
         + "\n".join(urls) + "\n</urlset>"
     )
     return Response(body, mimetype="application/xml")
+
+
+# ---------------------------------------------------------------- errors
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
 
 
 # ---------------------------------------------------------------- main
