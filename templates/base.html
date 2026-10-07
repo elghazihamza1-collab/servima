@@ -112,8 +112,16 @@
 (function(){
   var fab = document.getElementById('fabPost');
   if(!fab) return;
-  var onScroll = function(){ fab.classList.toggle('show', window.scrollY > 420); };
+  var footerVisible = false;
+  var onScroll = function(){ fab.classList.toggle('show', window.scrollY > 420 && !footerVisible); };
   window.addEventListener('scroll', onScroll, {passive:true});
+  var footer = document.querySelector('.footer');
+  if(footer && 'IntersectionObserver' in window){
+    new IntersectionObserver(function(entries){
+      footerVisible = entries[0].isIntersecting;
+      onScroll();
+    }, {threshold: 0.05}).observe(footer);
+  }
   onScroll();
 })();
 </script>
