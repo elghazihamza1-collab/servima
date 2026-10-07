@@ -1657,14 +1657,24 @@ def robots_txt():
 @app.route("/sitemap.xml")
 def sitemap_xml():
     pages = ["", "jobs", "workers", "register", "login", "terms"]
-    urls = "\n".join(
+    urls = [
         "  <url><loc>%s%s</loc><changefreq>daily</changefreq></url>" % (request.host_url, p)
         for p in pages
-    )
+    ]
+    try:
+        # trade pages: /workers?trade=<key> for every category (DB-managed,
+        # so the sitemap stays current when categories are added/edited)
+        for cat in Category.query.order_by(Category.key).all():
+            urls.append(
+                "  <url><loc>%sworkers?trade=%s</loc><changefreq>daily</changefreq></url>"
+                % (request.host_url, quote(cat.key, safe=""))
+            )
+    except Exception:
+        pass  # static pages still served even if categories can't load
     body = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        + urls + "\n</urlset>"
+        + "\n".join(urls) + "\n</urlset>"
     )
     return Response(body, mimetype="application/xml")
 
