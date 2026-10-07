@@ -20,7 +20,6 @@ from flask import (
     session, send_from_directory, abort, flash, Response,
 )
 from flask_sqlalchemy import SQLAlchemy
-from flask_session import Session
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -41,8 +40,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "uploads")
 app.config["CAT_UPLOAD_FOLDER"] = os.path.join(BASE_DIR, "static", "img", "categories")
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2 MB uploads
-app.config["SESSION_TYPE"] = "filesystem"          # server-side sessions
-app.config["SESSION_FILE_DIR"] = os.path.join(BASE_DIR, "instance", "sessions")
+# Persistent login: cookie survives closing/backgrounding the browser (31 days).
+# Sessions live in the signed cookie itself (no server files), so Render
+# restarts/deploys no longer log everyone out. Only user_id + lang are stored.
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=31)
 
 SUPPORT_WHATSAPP = "212621850430"  # public support number (password help)
 app.config["SESSION_PERMANENT"] = False
@@ -51,9 +52,6 @@ ALLOWED_EXT = {"png", "jpg", "jpeg", "gif", "webp"}
 
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 os.makedirs(app.config["CAT_UPLOAD_FOLDER"], exist_ok=True)
-os.makedirs(app.config["SESSION_FILE_DIR"], exist_ok=True)
-
-Session(app)          # server-side sessions (filesystem)
 db = SQLAlchemy(app)  # ORM -> parameterized queries, no raw SQL
 
 
@@ -1106,6 +1104,7 @@ def register():
                 flash(t("err_phone_taken"), "error")
                 return redirect(url_for("register"))
             session["user_id"] = user.id
+            session.permanent = True  # stay logged in 31 days
             flash(t("welcome", name=user.name), "ok")
             return redirect(url_for("dashboard"))
     return render_template(
@@ -1127,6 +1126,7 @@ def login():
             flash(t("err_blocked"), "error")
         elif user and user.check_password(password):
             session["user_id"] = user.id
+            session.permanent = True  # stay logged in 31 days
             flash(t("welcome", name=user.name), "ok")
             nxt = request.args.get("next")
             return redirect(nxt or url_for("dashboard"))
