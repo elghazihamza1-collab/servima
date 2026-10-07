@@ -13,8 +13,8 @@
   --line: #E8E4DA;
   --star: #F5B301;
   --radius: 16px;
-  --zellige-w: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='0.18' stroke-width='1.5'%3E%3Crect x='28' y='28' width='40' height='40'/%3E%3Crect x='28' y='28' width='40' height='40' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='4'/%3E%3C/g%3E%3C/svg%3E");
-  --zellige-g: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'%3E%3Cg fill='none' stroke='%230E7A3D' stroke-opacity='0.14' stroke-width='1.5'%3E%3Crect x='28' y='28' width='40' height='40'/%3E%3Crect x='28' y='28' width='40' height='40' transform='rotate(45 48 48)'/%3E%3Ccircle cx='48' cy='48' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  --zellige-w: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2796%27%20height%3D%2796%27%20viewBox%3D%270%200%2096%2096%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%2523FFFFFF%27%20stroke-opacity%3D%270.18%27%20stroke-width%3D%271.5%27%3E%3Cpolygon%20points%3D%2724%2C14%2034%2C24%2024%2C34%2014%2C24%27%2F%3E%3Cpolygon%20points%3D%2772%2C14%2082%2C24%2072%2C34%2062%2C24%27%2F%3E%3Cpolygon%20points%3D%2724%2C62%2034%2C72%2024%2C82%2014%2C72%27%2F%3E%3Cpolygon%20points%3D%2772%2C62%2082%2C72%2072%2C82%2062%2C72%27%2F%3E%3Cpolygon%20points%3D%2748%2C38%2058%2C48%2048%2C58%2038%2C48%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  --zellige-g: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2796%27%20height%3D%2796%27%20viewBox%3D%270%200%2096%2096%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%25230E7A3D%27%20stroke-opacity%3D%270.14%27%20stroke-width%3D%271.5%27%3E%3Cpolygon%20points%3D%2724%2C14%2034%2C24%2024%2C34%2014%2C24%27%2F%3E%3Cpolygon%20points%3D%2772%2C14%2082%2C24%2072%2C34%2062%2C24%27%2F%3E%3Cpolygon%20points%3D%2724%2C62%2034%2C72%2024%2C82%2014%2C72%27%2F%3E%3Cpolygon%20points%3D%2772%2C62%2082%2C72%2072%2C82%2062%2C72%27%2F%3E%3Cpolygon%20points%3D%2748%2C38%2058%2C48%2048%2C58%2038%2C48%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -120,7 +120,7 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
 
 /* ---------- hero ---------- */
 .hero {
-  background-image: url("../img/hero-bg.svg"); background-size: cover; background-position: center;
+  background-image: var(--zellige-g); background-size: 96px;
   text-align: center; padding: 2.6rem 1rem 2rem; margin-inline: -1rem;
   padding-inline: 1rem;
 }
