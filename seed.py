@@ -66,6 +66,8 @@ with app.app_context():
         ("counter_price", "INTEGER"),
         ("counter_by", "INTEGER"),
         ("counter_with", "INTEGER"),
+        ("completed_at", "TIMESTAMP"),
+        ("final_price", "INTEGER"),
     ):
         if col not in existing_job:
             db.session.execute(text(f'ALTER TABLE "job_request" ADD COLUMN {col} {typ}'))

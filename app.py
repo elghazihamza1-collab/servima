@@ -132,6 +132,10 @@ class JobRequest(db.Model):
     counter_price = db.Column(db.Integer, nullable=True)
     counter_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     counter_with = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)  # other party
+    # completion ledger: snapshot of the agreed price + timestamp when marked done.
+    # This is the dataset for future commission, price observatory and disputes.
+    completed_at = db.Column(db.DateTime, nullable=True)
+    final_price = db.Column(db.Integer, nullable=True)  # MAD, agreed amount at completion
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     category = db.relationship("Category")
@@ -808,6 +812,8 @@ def job_done(job_id):
         flash(t("err_not_open"), "error")
     else:
         job.status = "done"
+        job.completed_at = datetime.utcnow()
+        job.final_price = job.price  # snapshot the agreed amount
         db.session.commit()
         flash(t("msg_job_done"), "ok")
     return redirect(url_for("job_detail", job_id=job.id))
