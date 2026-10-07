@@ -43,15 +43,22 @@
     <td>{{ u.city }}</td>
     <td>{{ t('type_worker') if u.is_worker else t('type_client') }}</td>
     <td>
-      {% if u.is_blocked %}<span class="badge red">⛔</span>
-      {% elif u.is_verified %}<span class="badge">✓ {{ t('verified') }}</span>
-      {% else %}<span class="badge gray">–</span>{% endif %}
+      {% if u.is_blocked %}<span class="badge red">⛔</span>{% endif %}
+      {% if u.phone_verified %}<span class="badge" title="{{ t('badge_phone') }}">📱</span>{% endif %}
+      {% if u.is_verified %}<span class="badge" title="{{ t('badge_trade') }}">🔧</span>{% endif %}
+      {% if u.id_verified %}<span class="badge" title="{{ t('badge_id') }}">🆔</span>{% endif %}
+      {% if not u.is_blocked and not u.phone_verified and not u.is_verified and not u.id_verified %}<span class="badge gray">–</span>{% endif %}
     </td>
     <td class="actions">
       {% if u.is_verified %}
         <form method="post" action="{{ url_for('admin_user_unverify', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unverify') }}</button></form>
       {% else %}
         <form method="post" action="{{ url_for('admin_user_verify', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_verify') }}</button></form>
+      {% endif %}
+      {% if u.id_verified %}
+        <form method="post" action="{{ url_for('admin_user_unverify_id', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unverify_id') }}</button></form>
+      {% else %}
+        <form method="post" action="{{ url_for('admin_user_verify_id', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_verify_id') }}</button></form>
       {% endif %}
       {% if u.is_blocked %}
         <form method="post" action="{{ url_for('admin_user_unblock', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unblock') }}</button></form>

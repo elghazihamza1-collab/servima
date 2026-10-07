@@ -70,6 +70,13 @@
 </section>
 
 {% if current_user.is_worker %}
+{% if not current_user.is_verified %}
+<section class="dash-sec verify-box">
+  <h2>🔧 {{ t('verify_box_title') }}</h2>
+  <p>{{ t('verify_box_text') }}</p>
+  <a class="btn btn-green" href="https://wa.me/212621850430?text={{ t('verify_wa_msg', name=current_user.name, phone=current_user.phone) | urlencode }}" target="_blank" rel="noopener">💬 {{ t('verify_wa_btn') }}</a>
+</section>
+{% endif %}
 <section class="dash-sec">
   <h2>{{ t('dash_listings') }}</h2>
   <a class="btn btn-green" href="{{ url_for('listing_new') }}" style="margin-block-end:1rem">📸 {{ t('add_listing') }}</a>

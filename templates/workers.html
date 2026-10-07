@@ -18,7 +18,7 @@
         <span class="stars">{% for i in range(1,6) %}{{ '★' if i <= ((w.avg or 0)|round|int) else '☆' }}{% endfor %}</span>
         <span class="small muted">({{ w.rating_count or 0 }})</span>
       </div>
-      {% if w.is_verified %}<span class="verified">✓ {{ t('verified') }}</span>{% endif %}
+      {% if w.phone_verified %}<span class="verified" title="{{ t('badge_phone') }}">📱</span>{% endif %}{% if w.is_verified %}<span class="verified" title="{{ t('badge_trade') }}">🔧 {{ t('verified') }}</span>{% endif %}{% if w.id_verified %}<span class="verified" title="{{ t('badge_id') }}">🆔</span>{% endif %}
     </span>
   </a>
   {% else %}

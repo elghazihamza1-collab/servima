@@ -13,7 +13,7 @@
     <p style="margin:.2rem 0">
       <span class="stars">{% for i in range(1,6) %}{{ '★' if i <= (avg_rating|round|int) else '☆' }}{% endfor %}</span>
       <span class="small muted">({{ ratings|length }})</span>
-      {% if worker.is_verified %}<span class="verified">✓ {{ t('verified') }}</span>{% endif %}
+      {% if worker.phone_verified %}<span class="verified" title="{{ t('badge_phone') }}">📱</span>{% endif %}{% if worker.is_verified %}<span class="verified" title="{{ t('badge_trade') }}">🔧 {{ t('verified') }}</span>{% endif %}{% if worker.id_verified %}<span class="verified" title="{{ t('badge_id') }}">🆔</span>{% endif %}
     </p>
     {% if worker.member_since %}<p class="small muted" style="margin:0">{{ t('member_since') }}: {{ worker.member_since }}</p>{% endif %}
     {% if worker.experience_years is not none %}<p class="small" style="margin:.2rem 0">🏆 {{ t('f_experience') }}: {{ worker.experience_years }}</p>{% endif %}
