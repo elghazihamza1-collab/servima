@@ -64,8 +64,9 @@ with app.app_context():
         if col not in existing:
             db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {col} {typ}'))
     # backfill: everyone registered with a phone counts as phone-verified
-    db.session.execute(text('UPDATE "user" SET phone_verified = 1 WHERE phone_verified IS NULL'))
-    db.session.execute(text('UPDATE "user" SET id_verified = 0 WHERE id_verified IS NULL'))
+    # NOTE: use TRUE/FALSE keywords (not 1/0) — Postgres rejects integer=boolean
+    db.session.execute(text('UPDATE "user" SET phone_verified = TRUE WHERE phone_verified IS NULL'))
+    db.session.execute(text('UPDATE "user" SET id_verified = FALSE WHERE id_verified IS NULL'))
     existing_job = {c["name"] for c in inspect(db.engine).get_columns("job_request")}
     for col, typ in (
         ("counter_price", "INTEGER"),
