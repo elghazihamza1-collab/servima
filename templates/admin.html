@@ -22,8 +22,8 @@
 <div class="tblwrap">
 <table class="tbl">
   <tr><th>{{ t('col_page') }}</th><th>{{ t('col_views') }}</th></tr>
-  {% for path, n in top_pages %}
-  <tr><td dir="ltr" style="text-align:start">{{ path }}</td><td>{{ n }}</td></tr>
+  {% for name, n, pct in top_pages %}
+  <tr><td>{{ name }}</td><td><b>{{ n }}</b><span class="pvbar"><i style="width:{{ pct }}%"></i></span></td></tr>
   {% endfor %}
 </table>
 </div>
