@@ -78,8 +78,8 @@
     <td><a href="{{ url_for('job_detail', job_id=j.id) }}">{{ j.title }}</a></td>
     <td>{{ j.client_name }}<br><span class="small muted" dir="ltr">{{ j.client_phone }}</span></td>
     <td>{{ j.city_name }}</td>
-    <td><strong>{{ j.price }}</strong> MAD</td>
-    <td>{{ j.status }}</td>
+    <td><strong>{{ j.final_price if j.final_price else j.price }}</strong> MAD</td>
+    <td>{{ j.status }}{% if j.completed_at %}<br><span class="small muted">{{ j.completed_at.strftime('%Y-%m-%d') }}</span>{% endif %}</td>
     <td class="actions">
       <form method="post" action="{{ url_for('admin_job_delete', job_id=j.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
     </td>
