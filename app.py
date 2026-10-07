@@ -352,11 +352,70 @@ def inject_i18n():
 
 _BOT_HINTS = ("bot", "crawl", "spider", "slurp", "uptime", "monitor", "pingdom")
 
+# Friendly Arabic names for the admin "top pages" table (instead of raw paths).
+_PAGE_TITLES = {
+    "/": "الرئيسية",
+    "/login": "تسجيل الدخول",
+    "/register": "إنشاء حساب",
+    "/workers": "العمال",
+    "/jobs": "الطلبات",
+    "/jobs/new": "نشر طلب جديد",
+    "/dashboard": "لوحة التحكم",
+    "/dashboard/listings/new": "إضافة عمل",
+    "/faq": "الأسئلة الشائعة",
+    "/terms": "الشروط والأحكام",
+    "/profile": "حسابي",
+    "/password": "تغيير كلمة المرور",
+    "/forgot-password": "استعادة كلمة المرور",
+    "/notifications": "الإشعارات",
+    "/admin": "الإدارة",
+    "/booking/lookup": "البحث عن حجز",
+    "/sitemap.xml": "خريطة الموقع",
+}
+
+# Technical requests that are not real page views (browser tab icon, crawlers'
+# housekeeping, asset files, locale/logout redirects...).
+_NOISE_EXACT = ("/favicon.ico", "/robots.txt", "/logout")
+_NOISE_PREFIXES = ("/static/", "/uploads/", "/lang/")
+_NOISE_EXTS = (
+    ".css", ".js", ".png", ".jpg", ".jpeg", ".webp", ".svg", ".ico",
+    ".woff", ".woff2", ".map", ".json",
+)
+
+
+def _is_noise_path(path):
+    """True for technical requests that should never appear in page stats."""
+    if path in _NOISE_EXACT or path.startswith(_NOISE_PREFIXES):
+        return True
+    lp = path.lower()
+    return any(lp.endswith(ext) for ext in _NOISE_EXTS)
+
+
+def _page_display_name(path):
+    """Map a raw request path to a friendly Arabic label for the admin table."""
+    if path in _PAGE_TITLES:
+        return _PAGE_TITLES[path]
+    if path.startswith("/worker/"):
+        return "صفحة عامل"
+    if path.startswith("/listing/"):
+        return "معرض أعمال"
+    if path.startswith("/jobs/"):
+        if "/chat" in path:
+            return "محادثة الطلب"
+        if "/edit" in path:
+            return "تعديل الطلب"
+        return "تفاصيل طلب"
+    if path.startswith("/dashboard/"):
+        return "لوحة التحكم"
+    if path.startswith("/admin/"):
+        return "الإدارة"
+    return path  # unknown page: show the raw path rather than a wrong guess
+
 
 @app.before_request
 def log_visit():
     """Count real page views for the admin dashboard (skip files & bots)."""
-    if request.path.startswith(("/static/", "/uploads/")):
+    if _is_noise_path(request.path):
         return
     ua = (request.headers.get("User-Agent") or "").lower()
     if any(h in ua for h in _BOT_HINTS):
@@ -1416,14 +1475,27 @@ def admin():
         ).filter(Visit.created_at >= week_ago).scalar() or 0,
         "pageviews_week": Visit.query.filter(Visit.created_at >= week_ago).count(),
     }
-    top_pages = (
+    top_raw = (
         db.session.query(Visit.path, db.func.count(Visit.id).label("n"))
         .filter(Visit.created_at >= week_ago)
         .group_by(Visit.path)
         .order_by(db.desc("n"))
-        .limit(5)
+        .limit(15)
         .all()
     )
+    # Drop technical noise, translate paths to Arabic labels, merge dynamic
+    # pages (e.g. /jobs/12, /jobs/34) under one label, keep the top 5.
+    merged = {}
+    for path, n in top_raw:
+        if _is_noise_path(path):
+            continue
+        label = _page_display_name(path)
+        merged[label] = merged.get(label, 0) + n
+    ranked = sorted(merged.items(), key=lambda kv: kv[1], reverse=True)[:5]
+    top_max = ranked[0][1] if ranked else 1
+    top_pages = [
+        (label, n, round(n / top_max * 100)) for label, n in ranked
+    ]
     users = User.query.order_by(User.created_at.desc()).all()
     jobs = JobRequest.query.order_by(JobRequest.created_at.desc()).all()
     categories = Category.query.order_by(Category.id).all()
