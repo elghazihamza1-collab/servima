@@ -1457,6 +1457,21 @@ def faq():
     return render_template("faq.html")
 
 
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
+@app.route("/safety")
+def safety():
+    return render_template("safety.html")
+
+
+@app.route("/conduct")
+def conduct():
+    return render_template("conduct.html")
+
+
 # ---------------------------------------------------------------- admin
 @app.route("/admin")
 @admin_required
