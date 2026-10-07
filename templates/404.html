@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ t('err_404_t') }}{% endblock %}
+{% block content %}
+
+<div class="detail-main" style="margin-block:2rem;text-align:center">
+  <div style="font-size:4rem;font-weight:800;color:var(--green)">404</div>
+  <h1>{{ t('err_404_t') }}</h1>
+  <p class="muted">{{ t('err_404_d') }}</p>
+  <p style="margin-top:1.25rem"><a class="btn" href="{{ url_for('home') }}">{{ t('err_404_back') }}</a></p>
+</div>
+
+{% endblock %}

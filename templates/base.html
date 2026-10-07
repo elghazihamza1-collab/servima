@@ -6,6 +6,15 @@
   <meta name="google-site-verification" content="1MiidTJ9WBmaeGv5abHm-kSCHtxcAMSfRwAQtBi59P8" />
   <title>{% block title %}Servima{% endblock %} — Servima</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <meta name="theme-color" content="#0E7A3D">
+  <meta name="description" content="{{ t('meta_description') }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Servima">
+  <meta property="og:title" content="Servima">
+  <meta property="og:description" content="{{ t('meta_description') }}">
+  <meta property="og:url" content="{{ request.url }}">
+  <meta property="og:image" content="{{ request.url_root }}static/img/mascot-male.png">
 </head>
 <body>
 <header class="topbar">
