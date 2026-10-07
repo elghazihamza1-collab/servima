@@ -4,7 +4,7 @@
 
 <div class="chatwrap">
   <div class="chead">
-    <a class="cback" href="{{ url_for('job_detail', job_id=job.id) }}" aria-label="←">←</a>
+    <a class="cback" href="{{ url_for('job_detail', job_id=job.id) }}" aria-label="{{ t('arrow_back') }}">{{ t('arrow_back') }}</a>
     {% if other and other.is_worker %}
     <a class="chead-link" href="{{ url_for('worker_detail', user_id=other.id) }}">
       <div class="avatar">{{ (other.name or '?')[:1] }}</div>

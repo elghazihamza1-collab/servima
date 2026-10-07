@@ -29,7 +29,7 @@
 <section class="block">
   <div class="sec-head">
     <h2>{{ t('sec_categories') }}</h2>
-    <a href="{{ url_for('workers') }}">{{ t('nav_workers') }} ←</a>
+    <a href="{{ url_for('workers') }}">{{ t('nav_workers') }} {{ t('arrow_fwd') }}</a>
   </div>
   <div class="catgrid">
     {% for cat in categories %}
@@ -64,8 +64,8 @@
 {% if latest_jobs %}
 <section class="block">
   <div class="sec-head">
-    <h2>{{ t('open_jobs_n', n=latest_jobs|length) }}</h2>
-    <a href="{{ url_for('jobs') }}">{{ t('nav_jobs') }} ←</a>
+    <h2>{% if latest_jobs|length == 1 %}{{ t('open_job_1') }}{% else %}{{ t('open_jobs_n', n=latest_jobs|length) }}{% endif %}</h2>
+    <a href="{{ url_for('jobs') }}">{{ t('nav_jobs') }} {{ t('arrow_fwd') }}</a>
   </div>
   <div class="jobcards">
     {% for job in latest_jobs %}
