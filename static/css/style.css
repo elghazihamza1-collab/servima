@@ -307,7 +307,7 @@ section.block { margin-block: 2.2rem; }
 
 /* ---------- footer ---------- */
 .footer {
-  margin-block-start: 2.5rem; padding-block: 1.4rem; background: var(--green); color: #fff;
+  margin-block-start: 2.5rem; padding-block: 1.4rem; padding-block-end: 2.2rem; background: var(--green); color: #fff;
   border-block-start: none; position: relative;
 }
 .footer::before { content: ""; position: absolute; inset: 0; background-image: var(--zellige-w); background-size: 96px; pointer-events: none; }
