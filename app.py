@@ -66,6 +66,10 @@ class User(db.Model):
     is_worker = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_verified = db.Column(db.Boolean, default=False)  # "trusted" badge
+    # verification badges: phone (auto at signup), trade (admin, via work photos),
+    # id (admin, optional premium via CIN). Verified workers rank first in search.
+    phone_verified = db.Column(db.Boolean, default=True)
+    id_verified = db.Column(db.Boolean, default=False)
     is_blocked = db.Column(db.Boolean, default=False)
     photo_file = db.Column(db.String(255))   # optional profile photo (uploads/)
     bio = db.Column(db.Text)                 # optional short bio
@@ -997,7 +1001,9 @@ def workers():
     if q:
         like = f"%{q}%"
         query = query.filter(User.name.ilike(like))
-    workers = query.order_by(User.created_at.desc()).all()
+    workers = query.order_by(
+        User.is_verified.desc(), User.id_verified.desc(), User.created_at.desc()
+    ).all()
     for w in workers:
         w.avg = avg_rating(w.id)
         w.rating_count = Rating.query.filter_by(worker_id=w.id).count()
@@ -1094,6 +1100,7 @@ def register():
                 trade=trade if is_worker else None,
                 is_worker=is_worker,
                 is_admin=(User.query.count() == 0),  # first user = admin
+                phone_verified=True,  # registered with a phone number
             )
             user.set_password(password)
             db.session.add(user)
@@ -1556,7 +1563,7 @@ def _admin_user_do(user_id, action):
         db.session.delete(user)  # listings cascade via relationship
         db.session.commit()
         flash(t("msg_deleted"), "ok")
-    elif action in ("block", "unblock", "verify", "unverify"):
+    elif action in ("block", "unblock", "verify", "unverify", "verify_id", "unverify_id"):
         if user.id == me.id:
             flash(t("err_self_action"), "error")
             return redirect(url_for("admin"))
@@ -1572,6 +1579,12 @@ def _admin_user_do(user_id, action):
         elif action == "unverify":
             user.is_verified = False
             flash(t("msg_unverified"), "ok")
+        elif action == "verify_id":
+            user.id_verified = True
+            flash(t("msg_id_verified"), "ok")
+        elif action == "unverify_id":
+            user.id_verified = False
+            flash(t("msg_id_unverified"), "ok")
         db.session.commit()
     else:
         abort(404)
@@ -1589,6 +1602,18 @@ def admin_user_verify(user_id):
 @admin_required
 def admin_user_unverify(user_id):
     return _admin_user_do(user_id, "unverify")
+
+
+@app.route("/admin/users/<int:user_id>/verify_id", methods=["POST"])
+@admin_required
+def admin_user_verify_id(user_id):
+    return _admin_user_do(user_id, "verify_id")
+
+
+@app.route("/admin/users/<int:user_id>/unverify_id", methods=["POST"])
+@admin_required
+def admin_user_unverify_id(user_id):
+    return _admin_user_do(user_id, "unverify_id")
 
 
 @app.route("/admin/users/<int:user_id>/block", methods=["POST"])

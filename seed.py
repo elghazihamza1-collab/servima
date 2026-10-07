@@ -58,9 +58,14 @@ with app.app_context():
         ("photo_file", "VARCHAR(255)"),
         ("bio", "TEXT"),
         ("experience_years", "INTEGER"),
+        ("phone_verified", "BOOLEAN"),
+        ("id_verified", "BOOLEAN"),
     ):
         if col not in existing:
             db.session.execute(text(f'ALTER TABLE "user" ADD COLUMN {col} {typ}'))
+    # backfill: everyone registered with a phone counts as phone-verified
+    db.session.execute(text('UPDATE "user" SET phone_verified = 1 WHERE phone_verified IS NULL'))
+    db.session.execute(text('UPDATE "user" SET id_verified = 0 WHERE id_verified IS NULL'))
     existing_job = {c["name"] for c in inspect(db.engine).get_columns("job_request")}
     for col, typ in (
         ("counter_price", "INTEGER"),
