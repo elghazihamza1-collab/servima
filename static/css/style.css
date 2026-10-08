@@ -141,13 +141,31 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
   display: flex; align-items: center; justify-content: center;
 }
 .mascot-ring + .mascot-ring { margin-inline-start: -22px; }
-/* the ring floats gently forever (staggered); the character peeks up from inside on load */
+/* the ring bounces with the peek, then floats gently forever (staggered) */
 @keyframes mascot-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
-.mascot-ring:first-child { animation: mascot-float 4s ease-in-out 1.6s infinite; }
-.mascot-ring:last-child { animation: mascot-float 4s ease-in-out 3.6s infinite; }
+@keyframes ring-bounce {
+  0% { transform: scale(.85); }
+  60% { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+.mascot-ring:first-child { animation: ring-bounce .7s ease-out .3s 1 backwards, mascot-float 4s ease-in-out 1.6s infinite; }
+.mascot-ring:last-child { animation: ring-bounce .7s ease-out .65s 1 backwards, mascot-float 4s ease-in-out 3.6s infinite; }
+/* greeting bubble pops in after the mascots peek */
+.mascot-greet { display: flex; flex-direction: column; align-items: center; }
+.greet-bubble {
+  background: #fff; border: 2px solid #1e9e5a; color: #14532d;
+  padding: .3rem .9rem; border-radius: 999px;
+  font-weight: 700; font-size: .85rem; margin-bottom: .6rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1); opacity: 0;
+  animation: bubble-pop .5s ease-out 1.2s 1 forwards;
+}
+@keyframes bubble-pop {
+  0% { opacity: 0; transform: scale(.6) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 /* peek-a-boo: face pops up from below the circle with a little overshoot */
 .mascot-ring img { width: 112%; height: 112%; object-fit: cover; }
 @keyframes mascot-peek {
@@ -159,7 +177,8 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
 .mascot-ring:first-child img { animation: mascot-peek .8s cubic-bezier(.3,.7,.4,1) .3s 1 backwards; }
 .mascot-ring:last-child img { animation: mascot-peek .8s cubic-bezier(.3,.7,.4,1) .65s 1 backwards; }
 @media (prefers-reduced-motion: reduce) {
-  .mascot-ring, .mascot-ring img { animation: none; }
+  .mascot-ring, .mascot-ring img, .greet-bubble { animation: none; }
+  .greet-bubble { opacity: 1; }
 }
 
 /* success page: animated checkmark + centered celebration layout */
