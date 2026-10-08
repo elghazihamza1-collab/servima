@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ t('success_posted_title') if kind == 'posted' else t('success_done_title') }}{% endblock %}
+{% block content %}
+
+<div class="success-wrap">
+  <div class="success-check" aria-hidden="true">
+    <svg viewBox="0 0 64 64">
+      <circle class="sc-circle" cx="32" cy="32" r="28"/>
+      <path class="sc-tick" d="M20 33 l8 8 l16 -17"/>
+    </svg>
+  </div>
+
+  <div class="hero-duo success-duo" aria-hidden="true">
+    <img src="{{ url_for('static', filename='img/mascot-male.png') }}" alt="" loading="lazy">
+    <img src="{{ url_for('static', filename='img/mascot-female.png') }}" alt="" loading="lazy">
+  </div>
+
+  {% if kind == 'posted' %}
+    <h1>{{ t('success_posted_title') }}</h1>
+    <p class="muted">{{ t('success_posted_sub') }}</p>
+    <div class="success-btns">
+      <a class="btn btn-primary" href="{{ url_for('job_detail', job_id=job.id) }}">{{ t('success_view_job') }}</a>
+      <a class="btn btn-outline" href="{{ url_for('job_new') }}">{{ t('success_post_another') }}</a>
+    </div>
+  {% else %}
+    <h1>{{ t('success_done_title') }}</h1>
+    <p class="muted">{{ t('success_done_sub', price=job.final_price or job.price) }}</p>
+    <div class="success-btns">
+      {% if is_client and worker %}
+        <a class="btn btn-primary" href="{{ url_for('worker_detail', user_id=worker.id) }}">{{ t('success_rate_worker') }}</a>
+      {% endif %}
+      <a class="btn btn-outline" href="{{ url_for('dashboard') }}">{{ t('success_dashboard') }}</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
