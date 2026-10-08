@@ -151,8 +151,12 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
   60% { transform: scale(1.07); }
   100% { transform: scale(1); }
 }
-.mascot-ring:first-child { animation: ring-bounce .7s ease-out .3s 1 backwards, mascot-float 4s ease-in-out 1.6s infinite; }
-.mascot-ring:last-child { animation: ring-bounce .7s ease-out .65s 1 backwards, mascot-float 4s ease-in-out 3.6s infinite; }
+/* before images finish loading: characters wait hidden below the circle edge */
+.mascot-greet:not(.mascots-ready) .mascot-ring img,
+.hero-duo:not(.mascots-ready) .mascot-ring img { transform: translateY(100%); }
+/* animations run only after JS confirms the images are loaded */
+.mascots-ready .mascot-ring:first-child { animation: ring-bounce .7s ease-out .1s 1 backwards, mascot-float 4s ease-in-out 1.4s infinite; }
+.mascots-ready .mascot-ring:last-child { animation: ring-bounce .7s ease-out .45s 1 backwards, mascot-float 4s ease-in-out 3.4s infinite; }
 /* greeting bubble pops in after the mascots peek */
 .mascot-greet { display: flex; flex-direction: column; align-items: center; }
 .greet-bubble {
@@ -160,8 +164,8 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
   padding: .3rem .9rem; border-radius: 999px;
   font-weight: 700; font-size: .85rem; margin-bottom: .6rem;
   box-shadow: 0 2px 8px rgba(0,0,0,.1); opacity: 0;
-  animation: bubble-pop .5s ease-out 1.2s 1 forwards;
 }
+.mascots-ready .greet-bubble { animation: bubble-pop .5s ease-out 1s 1 forwards; }
 @keyframes bubble-pop {
   0% { opacity: 0; transform: scale(.6) translateY(8px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
@@ -174,10 +178,11 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
   85% { transform: translateY(3%); }
   100% { transform: translateY(0); }
 }
-.mascot-ring:first-child img { animation: mascot-peek .8s cubic-bezier(.3,.7,.4,1) .3s 1 backwards; }
-.mascot-ring:last-child img { animation: mascot-peek .8s cubic-bezier(.3,.7,.4,1) .65s 1 backwards; }
+.mascots-ready .mascot-ring:first-child img { animation: mascot-peek .8s cubic-bezier(.3,.7,.4,1) .1s 1 backwards; }
+.mascots-ready .mascot-ring:last-child img { animation: mascot-peek .8s cubic-bezier(.3,.7,.4,1) .45s 1 backwards; }
 @media (prefers-reduced-motion: reduce) {
   .mascot-ring, .mascot-ring img, .greet-bubble { animation: none; }
+  .mascot-greet .mascot-ring img, .hero-duo .mascot-ring img { transform: none; }
   .greet-bubble { opacity: 1; }
 }
 
