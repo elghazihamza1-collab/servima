@@ -135,6 +135,38 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
 .hero-duo { display: flex; flex-shrink: 0; }
 .hero-duo img { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 3px 12px rgba(0,0,0,.15); background: #fff; }
 .hero-duo img:last-child { margin-inline-start: -22px; }
+/* gentle float: mascots feel alive, staggered so they never move in sync */
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.hero-duo img:first-child { animation: mascot-float 4s ease-in-out infinite; }
+.hero-duo img:last-child { animation: mascot-float 4s ease-in-out 2s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-duo img { animation: none; }
+}
+
+/* success page: animated checkmark + centered celebration layout */
+.success-wrap { max-width: 520px; margin: 3rem auto; text-align: center; padding: 0 1rem; }
+.success-check svg { width: 96px; height: 96px; }
+.sc-circle {
+  fill: none; stroke: #1e9e5a; stroke-width: 4;
+  stroke-dasharray: 176; stroke-dashoffset: 176;
+  animation: sc-draw .7s ease-out forwards;
+}
+.sc-tick {
+  fill: none; stroke: #1e9e5a; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 40; stroke-dashoffset: 40;
+  animation: sc-draw .45s .6s ease-out forwards;
+}
+@keyframes sc-draw { to { stroke-dashoffset: 0; } }
+.success-duo { justify-content: center; margin: 1.2rem 0; }
+.success-duo img { width: 72px; height: 72px; }
+.success-wrap h1 { margin: .4rem 0 .6rem; font-size: 1.5rem; }
+.success-btns { display: flex; gap: .7rem; justify-content: center; flex-wrap: wrap; margin-top: 1.4rem; }
+@media (prefers-reduced-motion: reduce) {
+  .sc-circle, .sc-tick { animation: none; stroke-dashoffset: 0; }
+}
 .free-pill {
   display: inline-block; background: var(--green-soft); color: var(--green-dark);
   border: 1px solid #bfe3cc; border-radius: 999px; padding: .35rem 1rem;
