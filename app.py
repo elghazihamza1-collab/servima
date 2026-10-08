@@ -702,8 +702,7 @@ def job_new():
             db.session.commit()
         except Exception:
             db.session.rollback()
-        flash(t("msg_job_posted"), "ok")
-        return redirect(url_for("job_detail", job_id=job.id))
+        return redirect(url_for("job_success", kind="posted", job_id=job.id))
     return render_template(
         "job_new.html",
         categories=cat_dicts(lang),
@@ -883,8 +882,27 @@ def job_done(job_id):
         job.completed_at = datetime.utcnow()
         job.final_price = job.price  # snapshot the agreed amount
         db.session.commit()
-        flash(t("msg_job_done"), "ok")
+        return redirect(url_for("job_success", kind="done", job_id=job.id))
     return redirect(url_for("job_detail", job_id=job.id))
+
+
+@app.route("/success/<kind>/<int:job_id>")
+@login_required
+def job_success(kind, job_id):
+    """Celebration page after posting a job or marking it done."""
+    if kind not in ("posted", "done"):
+        abort(404)
+    job = db.get_or_404(JobRequest, job_id)
+    u = current_user()
+    is_client = job.client_phone == u.phone or u.is_admin
+    is_worker = job.accepted_by and job.accepted_by == u.id
+    if not (is_client or is_worker):
+        abort(403)
+    worker = db.session.get(User, job.accepted_by) if job.accepted_by else None
+    return render_template(
+        "success.html", kind=kind, job=job,
+        is_client=is_client, worker=worker,
+    )
 
 
 # ---------------------------------------------------------------- in-site chat
