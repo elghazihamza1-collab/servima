@@ -217,6 +217,30 @@ section.block { margin-block: 2.2rem; }
 }
 .badge.red { background: #FDECEF; color: var(--red-dark); }
 .badge.gray { background: #f0efec; color: var(--muted); }
+.badge.done { background: #e3f5e9; color: var(--green-dark); }
+/* pro how-it-works strip */
+.howstrip {
+  display: flex; align-items: center; gap: .5rem;
+  background: linear-gradient(135deg, var(--green-soft), #f4faf5);
+  border: 1px solid #dcefe1; border-radius: 1.1rem;
+  padding: .9rem 1rem;
+}
+.howstep { display: flex; align-items: center; gap: .55rem; flex: 1; min-width: 0; }
+.how-ico {
+  width: 2.3rem; height: 2.3rem; flex: none;
+  display: grid; place-items: center; font-size: 1.25rem;
+  background: #fff; border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(20, 90, 50, .12);
+}
+.how-tx { font-weight: 700; font-size: .88rem; line-height: 1.35; }
+.how-arrow { color: var(--green-dark); font-weight: 800; flex: none; opacity: .7; }
+.how-one { margin: .7rem .2rem 0; color: var(--muted); font-size: .92rem; line-height: 1.8; }
+@media (max-width: 480px) {
+  .howstrip { gap: .35rem; padding: .7rem .55rem; }
+  .how-ico { width: 2rem; height: 2rem; font-size: 1.05rem; }
+  .how-tx { font-size: .76rem; }
+  .howstep { gap: .4rem; }
+}
 .jobcard-foot {
   display: flex; align-items: center; gap: .8rem; margin-block-start: .7rem;
   padding-block-start: .7rem; border-block-start: 1px solid var(--line);
