@@ -31,7 +31,8 @@
       </div>
     </div>
     <label id="trade_wrap" style="display:none">{{ t('f_trade') }}
-      <select name="trade">
+      <select name="trade" required>
+        <option value="" disabled selected>— {{ t('f_trade') }} —</option>
         {% for c in categories %}
         <option value="{{ c.key }}">{{ c.name }}</option>
         {% endfor %}
@@ -45,7 +46,8 @@
 <script>
 (function () {
   var w = document.getElementById('acc_worker'), tw = document.getElementById('trade_wrap');
-  function sync() { tw.style.display = w.checked ? 'grid' : 'none'; }
+  var sel = tw.querySelector('select');
+  function sync() { tw.style.display = w.checked ? 'grid' : 'none'; if (sel) sel.required = w.checked; }
   document.querySelectorAll('input[name="account_type"]').forEach(function (r) { r.addEventListener('change', sync); });
   sync();
 })();

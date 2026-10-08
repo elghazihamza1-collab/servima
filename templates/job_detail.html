@@ -10,6 +10,11 @@
       <span class="muted small">🕐 {{ job.created_at|timeago }}</span>
     </div>
     <h1>{{ job.title }}</h1>
+    {% if job.status == 'done' %}
+    <p><span class="badge done">✅ {{ t('job_st_done') }}{% if job.completed_at %} · {{ job.completed_at.strftime('%Y-%m-%d') }}{% endif %}</span></p>
+    {% elif job.status == 'cancelled' %}
+    <p><span class="badge gray">❌ {{ t('job_st_cancelled') }}</span></p>
+    {% endif %}
     {% if can_edit %}
     <div class="owner-actions" style="display:flex;gap:.5rem;margin-block:.6rem">
       <a class="btn btn-sm btn-outline" href="{{ url_for('job_edit', job_id=job.id) }}">✏️ {{ t('btn_edit') }}</a>

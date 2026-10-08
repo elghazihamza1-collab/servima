@@ -16,6 +16,7 @@
   <form method="post" action="{{ url_for('become_worker') }}" class="filters">
     <label>{{ t('f_trade') }}
       <select name="trade" required>
+        {% if not current_user.is_worker %}<option value="" disabled selected>— {{ t('f_trade') }} —</option>{% endif %}
         {% for c in categories %}
         <option value="{{ c.key }}" {{ 'selected' if current_user.trade == c.key else '' }}>{{ c.name }}</option>
         {% endfor %}

@@ -51,7 +51,7 @@
     <div class="jobcard-foot">
       <div>
         <div class="small muted">{{ t('proposed_price') }}</div>
-        <span class="price">{{ job.price }} <small>MAD <span class="small">{{ t('per_job') }}</span></small></span>
+        <span class="price">{{ job.price }} <small>MAD</small></span>
       </div>
       <span class="timeago">🕐 {{ job.created_at|timeago }}</span>
       {% if job.status == 'accepted' %}

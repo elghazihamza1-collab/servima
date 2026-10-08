@@ -25,7 +25,7 @@
           {{ t('notif_new_job_generic') }}
         {% endif %}
       </div>
-      <div class="muted small">{{ n.created_at.strftime('%Y-%m-%d %H:%M') if n.created_at else '' }}</div>
+      <div class="muted small">🕐 {{ n.created_at|timeago }}</div>
     </div>
   </a>
   {% endfor %}
