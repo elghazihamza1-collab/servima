@@ -17,7 +17,7 @@ from urllib.parse import quote
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, send_from_directory, abort, flash, Response,
+    session, send_from_directory, abort, flash, Response, jsonify,
 )
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -53,6 +53,72 @@ ALLOWED_EXT = {"png", "jpg", "jpeg", "gif", "webp"}
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 os.makedirs(app.config["CAT_UPLOAD_FOLDER"], exist_ok=True)
 db = SQLAlchemy(app)  # ORM -> parameterized queries, no raw SQL
+
+
+# ------------------------------------------------------- phone verification
+# Firebase Phone Auth (free tier: 10 SMS/day). The web config below is PUBLIC
+# (it's embedded in the page JS); token verification needs only projectId.
+FIREBASE_CONFIG = {
+    "apiKey": "AIzaSyA2NFlNDX-OHZPqDNpSj4WIv1GMKdGKsFo",
+    "authDomain": "servima-944a7.firebaseapp.com",
+    "projectId": "servima-944a7",
+    "storageBucket": "servima-944a7.firebasestorage.app",
+    "messagingSenderId": "622486685503",
+    "appId": "1:622486685503:web:4b13537df814334fa5358a",
+}
+
+
+def normalize_phone(raw):
+    """Canonical Moroccan phone number: digits-only, local 0X form.
+
+    Accepts every way Moroccans type their number and returns ONE identity:
+      "+212 661-234567" / "00212661234567" / "06 61 23 45 67" / "661234567"
+      -> "0661234567"
+    Unknown formats collapse to digits only so comparisons stay consistent.
+    """
+    digits = re.sub(r"\D", "", raw or "")
+    if digits.startswith("00"):
+        digits = digits[2:]
+    if digits.startswith("212") and len(digits) == 12:
+        digits = "0" + digits[3:]
+    if len(digits) == 9 and digits[0] in "567":
+        digits = "0" + digits  # typed without the leading 0
+    return digits
+
+
+def verify_firebase_token(id_token_str):
+    """Verify a Firebase Phone Auth ID token. Returns the verified E.164 phone
+    (e.g. '+212661234567') or None if invalid. Needs no service account key —
+    verification is done against Google's public certificates."""
+    try:
+        from google.oauth2 import id_token as gid_token
+        from google.auth.transport import requests as grequests
+        claims = gid_token.verify_firebase_token(
+            id_token_str, grequests.Request(),
+            audience=FIREBASE_CONFIG["projectId"],
+        )
+        return claims.get("phone_number")
+    except Exception:
+        return None
+
+
+def _create_account_from_pending(pending, phone_verified):
+    """Create the User row from validated pending registration data."""
+    user = User(
+        name=pending["name"], phone=pending["phone"], city=pending["city"],
+        trade=pending["trade"] if pending["is_worker"] else None,
+        is_worker=pending["is_worker"],
+        is_admin=(User.query.count() == 0),  # first user = admin
+        phone_verified=phone_verified,
+    )
+    user.set_password(pending["password"])
+    db.session.add(user)
+    try:
+        db.session.commit()
+    except IntegrityError:  # double-submit / race: phone already taken
+        db.session.rollback()
+        return None
+    return user
 
 
 # ---------------------------------------------------------------- models
@@ -1127,7 +1193,7 @@ def register():
     lang = get_lang()
     if request.method == "POST":
         name = request.form.get("name", "").strip()
-        phone = request.form.get("phone", "").strip()
+        phone = normalize_phone(request.form.get("phone", ""))
         city = request.form.get("city", "").strip()
         password = request.form.get("password", "")
         account_type = request.form.get("account_type", "client")
@@ -1136,33 +1202,83 @@ def register():
         cat_ok = (not is_worker) or bool(Category.query.filter_by(key=trade).first())
         if not (name and phone and city and password and city in CITY_KEYS and cat_ok):
             flash(t("err_required"), "error")
+        elif len(phone) < 9:
+            flash(t("err_phone_invalid"), "error")
         elif User.query.filter_by(phone=phone).first():
             flash(t("err_phone_taken"), "error")
         else:
-            user = User(
-                name=name, phone=phone, city=city,
-                trade=trade if is_worker else None,
-                is_worker=is_worker,
-                is_admin=(User.query.count() == 0),  # first user = admin
-                phone_verified=True,  # registered with a phone number
-            )
-            user.set_password(password)
-            db.session.add(user)
-            try:
-                db.session.commit()
-            except IntegrityError:  # double-submit / race: phone already taken
-                db.session.rollback()
-                flash(t("err_phone_taken"), "error")
-                return redirect(url_for("register"))
-            session["user_id"] = user.id
-            session.permanent = True  # stay logged in 31 days
-            flash(t("welcome", name=user.name), "ok")
-            return redirect(url_for("dashboard"))
+            # stash the validated data, verify the number by SMS, then create
+            session["pending_reg"] = {
+                "name": name, "phone": phone, "city": city,
+                "password": password,  # hashed on account creation
+                "is_worker": is_worker, "trade": trade,
+            }
+            return redirect(url_for("verify_phone"))
     return render_template(
         "register.html",
         categories=cat_dicts(lang),
         cities=[(k, city_name(k, lang)) for k in CITY_KEYS],
     )
+
+
+@app.route("/verify-phone", methods=["GET"])
+def verify_phone():
+    """Step 2 of registration: prove ownership of the number via Firebase SMS.
+    The E.164 form (+212XXXXXXXXX) is derived from the normalized local form."""
+    if current_user():
+        return redirect(url_for("dashboard"))
+    pending = session.get("pending_reg")
+    if not pending:
+        return redirect(url_for("register"))
+    e164 = "+212" + pending["phone"][1:] if pending["phone"].startswith("0") else "+" + pending["phone"]
+    return render_template(
+        "verify_phone.html",
+        phone_display=pending["phone"],
+        phone_e164=e164,
+        firebase_config=FIREBASE_CONFIG,
+    )
+
+
+@app.route("/verify-phone/confirm", methods=["POST"])
+def verify_phone_confirm():
+    """Create the account after the Firebase ID token proves number ownership."""
+    if current_user():
+        return jsonify({"ok": False}), 400
+    pending = session.get("pending_reg")
+    if not pending:
+        return jsonify({"ok": False}), 400
+    data = request.get_json(silent=True) or {}
+    verified_e164 = verify_firebase_token(data.get("id_token", ""))
+    expected_e164 = "+212" + pending["phone"][1:] if pending["phone"].startswith("0") else "+" + pending["phone"]
+    # normalize both sides to digits before comparing (+212 6... vs 00212...)
+    if not verified_e164 or normalize_phone(verified_e164) != pending["phone"]:
+        return jsonify({"ok": False}), 403
+    user = _create_account_from_pending(pending, phone_verified=True)
+    session.pop("pending_reg", None)
+    if not user:
+        return jsonify({"ok": False, "taken": True}), 409
+    session["user_id"] = user.id
+    session.permanent = True  # stay logged in 31 days
+    return jsonify({"ok": True})
+
+
+@app.route("/verify-phone/fallback", methods=["POST"])
+def verify_phone_fallback():
+    """Quota-exceeded / Firebase outage fallback: create the account WITHOUT
+    SMS verification (flagged unverified) so nobody is ever blocked from
+    registering. The user is asked to verify later."""
+    if current_user():
+        return jsonify({"ok": False}), 400
+    pending = session.get("pending_reg")
+    if not pending:
+        return jsonify({"ok": False}), 400
+    user = _create_account_from_pending(pending, phone_verified=False)
+    session.pop("pending_reg", None)
+    if not user:
+        return jsonify({"ok": False, "taken": True}), 409
+    session["user_id"] = user.id
+    session.permanent = True
+    return jsonify({"ok": True})
 
 
 @app.route("/login", methods=["GET", "POST"])
