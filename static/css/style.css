@@ -411,3 +411,9 @@ section.block { margin-block: 2.2rem; }
 /* Admin "top pages" mini bars */
 .pvbar{display:block;height:6px;background:var(--line);border-radius:99px;margin-top:.35rem;overflow:hidden;max-width:180px}
 .pvbar i{display:block;height:100%;background:var(--green);border-radius:99px}
+/* trade x city SEO landing pages */
+.breadcrumbs{margin:.4rem 0 .2rem}
+.breadcrumbs a{color:var(--green)}
+.lead{font-size:1.05rem;color:var(--ink-soft,#444);max-width:640px}
+.cta-row{display:flex;gap:.6rem;flex-wrap:wrap}
+.price-hint{background:var(--green-soft);border:1px solid var(--green);border-radius:12px;padding:.6rem 1rem;display:inline-block;margin:.4rem 0}
