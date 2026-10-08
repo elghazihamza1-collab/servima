@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{{ t('vp_title') }}{% endblock %}
+{% block content %}
+
+<div class="auth-card">
+  <h1>{{ t('vp_title') }}</h1>
+  <p class="muted" id="vp_desc">{{ t('vp_desc', phone=phone_display) }}</p>
+
+  <div id="vp_step_send">
+    <div id="recaptcha-container"></div>
+    <button type="button" class="btn btn-primary btn-block" id="vp_send_btn" onclick="vpSend()">
+      {{ t('vp_send_btn') }}
+    </button>
+  </div>
+
+  <div id="vp_step_code" style="display:none">
+    <label>{{ t('vp_code_label') }}
+      <input type="text" id="vp_code" inputmode="numeric" dir="ltr" maxlength="6"
+             placeholder="——————" autocomplete="one-time-code"
+             style="text-align:center;letter-spacing:.5rem;font-size:1.4rem">
+    </label>
+    <button type="button" class="btn btn-primary btn-block" id="vp_verify_btn" onclick="vpVerify()">
+      {{ t('vp_verify_btn') }}
+    </button>
+    <p class="muted" style="text-align:center;margin-top:.6rem">
+      <a href="#" onclick="vpSend();return false;">{{ t('vp_resend') }}</a>
+    </p>
+  </div>
+
+  <p class="form-err" id="vp_err" style="display:none"></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+firebase.initializeApp({{ firebase_config | tojson }});
+var vpConfirmation = null;
+var vpRecaptcha = null;
+
+function vpShowErr(msg) {
+  var e = document.getElementById('vp_err');
+  e.textContent = msg; e.style.display = 'block';
+}
+function vpHideErr() {
+  document.getElementById('vp_err').style.display = 'none';
+}
+
+function vpEnsureRecaptcha() {
+  if (!vpRecaptcha) {
+    vpRecaptcha = new firebase.auth.RecaptchaVerifier(
+      document.getElementById('recaptcha-container'), { size: 'invisible' });
+  }
+  return vpRecaptcha;
+}
+
+function vpSend() {
+  vpHideErr();
+  var btn = document.getElementById('vp_send_btn');
+  btn.disabled = true; btn.textContent = '{{ t('vp_sending') }}';
+  firebase.auth().signInWithPhoneNumber({{ phone_e164 | tojson }}, vpEnsureRecaptcha())
+    .then(function (res) {
+      vpConfirmation = res;
+      document.getElementById('vp_step_send').style.display = 'none';
+      document.getElementById('vp_step_code').style.display = 'block';
+      document.getElementById('vp_code').focus();
+    })
+    .catch(function (err) {
+      btn.disabled = false; btn.textContent = '{{ t('vp_send_btn') }}';
+      if (err && err.code === 'auth/quota-exceeded') {
+        vpFallback();  // daily SMS quota used up -> register unverified
+      } else if (err && err.code === 'auth/too-many-requests') {
+        vpShowErr('{{ t('vp_err_many') }}');
+      } else if (err && err.code === 'auth/invalid-phone-number') {
+        vpShowErr('{{ t('err_phone_invalid') }}');
+      } else {
+        vpFallback();  // any Firebase outage -> graceful fallback, never block
+      }
+    });
+}
+
+function vpVerify() {
+  vpHideErr();
+  var code = document.getElementById('vp_code').value.trim();
+  if (!code || !vpConfirmation) return;
+  var btn = document.getElementById('vp_verify_btn');
+  btn.disabled = true; btn.textContent = '{{ t('vp_verifying') }}';
+  vpConfirmation.confirm(code)
+    .then(function (res) { return res.user.getIdToken(); })
+    .then(function (idToken) {
+      return fetch('{{ url_for('verify_phone_confirm') }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_token: idToken }),
+      });
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.ok) { window.location.href = '{{ url_for('dashboard') }}'; }
+      else if (data.taken) { vpShowErr('{{ t('err_phone_taken') }}'); }
+      else { vpShowErr('{{ t('vp_err_code') }}'); }
+      btn.disabled = false; btn.textContent = '{{ t('vp_verify_btn') }}';
+    })
+    .catch(function () {
+      vpShowErr('{{ t('vp_err_code') }}');
+      btn.disabled = false; btn.textContent = '{{ t('vp_verify_btn') }}';
+    });
+}
+
+// Fallback: quota exceeded or Firebase down -> create account unverified,
+// user is asked to verify later. Nobody is ever blocked from registering.
+function vpFallback() {
+  fetch('{{ url_for('verify_phone_fallback') }}', { method: 'POST' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.ok) { window.location.href = '{{ url_for('dashboard') }}'; }
+      else if (data.taken) { vpShowErr('{{ t('err_phone_taken') }}'); }
+      else { vpShowErr('{{ t('vp_err_generic') }}'); }
+    })
+    .catch(function () { vpShowErr('{{ t('vp_err_generic') }}'); });
+}
+</script>
+{% endblock %}
