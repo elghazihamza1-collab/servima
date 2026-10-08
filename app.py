@@ -1603,8 +1603,17 @@ def _admin_user_do(user_id, action):
         for job in JobRequest.query.filter_by(accepted_by=user.id).all():
             job.accepted_by = None
             job.status = "open"
+        # clear negotiation references to this user
+        for job in JobRequest.query.filter(
+            (JobRequest.counter_by == user.id) | (JobRequest.counter_with == user.id)
+        ).all():
+            job.counter_by = None
+            job.counter_with = None
+            job.counter_price = None
         Rating.query.filter_by(worker_id=user.id).delete()
-        db.session.delete(user)  # listings cascade via relationship
+        Message.query.filter_by(sender_id=user.id).delete()
+        Notification.query.filter_by(user_id=user.id).delete()
+        db.session.delete(user)  # listings (+their bookings) cascade via relationship
         db.session.commit()
         flash(t("msg_deleted"), "ok")
     elif action in ("block", "unblock", "verify", "unverify", "verify_id", "unverify_id"):
