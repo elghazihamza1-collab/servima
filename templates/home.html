@@ -54,11 +54,14 @@
 
 <section class="block">
   <div class="sec-head"><h2>{{ t('sec_how') }}</h2></div>
-  <div class="steps">
-    <div class="step"><span class="n">1</span><h3>{{ t('hj1_t') }}</h3><p>{{ t('hj1_d') }}</p></div>
-    <div class="step"><span class="n">2</span><h3>{{ t('hj2_t') }}</h3><p>{{ t('hj2_d') }}</p></div>
-    <div class="step"><span class="n">3</span><h3>{{ t('hj3_t') }}</h3><p>{{ t('hj3_d') }}</p></div>
+  <div class="howstrip">
+    <div class="howstep"><span class="how-ico">📝</span><span class="how-tx">{{ t('how_s1') }}</span></div>
+    <span class="how-arrow">{{ t('arrow_fwd') }}</span>
+    <div class="howstep"><span class="how-ico">🛡️</span><span class="how-tx">{{ t('how_s2') }}</span></div>
+    <span class="how-arrow">{{ t('arrow_fwd') }}</span>
+    <div class="howstep"><span class="how-ico">🤝</span><span class="how-tx">{{ t('how_s3') }}</span></div>
   </div>
+  <p class="how-one">{{ t('how_one') }}</p>
 </section>
 
 {% if latest_jobs %}
