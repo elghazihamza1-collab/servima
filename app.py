@@ -23,6 +23,9 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from translations import (
     STRINGS, SUPPORTED, DEFAULT, CITY_KEYS, city_name,
@@ -53,6 +56,31 @@ ALLOWED_EXT = {"png", "jpg", "jpeg", "gif", "webp"}
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 os.makedirs(app.config["CAT_UPLOAD_FOLDER"], exist_ok=True)
 db = SQLAlchemy(app)  # ORM -> parameterized queries, no raw SQL
+
+# ---------------------------------------------------------------- security
+# CSRF: every POST form/fetch must carry a token tied to the user's session.
+# Templates include it via {{ csrf_token() }}; JSON fetches send X-CSRFToken.
+csrf = CSRFProtect(app)
+
+# Rate limiting: blunt-force protection on the sensitive auth endpoints.
+# Other routes stay unlimited so normal browsing is never throttled.
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    storage_uri="memory://",  # per-worker in-memory counters (fine for our scale)
+    default_limits=[],
+)
+
+
+@app.errorhandler(CSRFError)
+def _csrf_error(e):
+    # Token missing/expired (e.g. stale tab) -> friendly retry instead of a
+    # bare 400, so users just resubmit instead of seeing a cryptic error.
+    return (
+        render_template("error.html", code=400,
+                        message=t("err_csrf_expired")),
+        400,
+    )
 
 
 # ------------------------------------------------------- phone verification
@@ -1281,6 +1309,7 @@ def verify_phone_confirm():
 
 
 @app.route("/verify-phone/fallback", methods=["POST"])
+@limiter.limit("10 per hour")  # bulk unverified-account creation protection
 def verify_phone_fallback():
     """Quota-exceeded / Firebase outage fallback: create the account WITHOUT
     SMS verification (flagged unverified) so nobody is ever blocked from
@@ -1300,6 +1329,7 @@ def verify_phone_fallback():
 
 
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("15 per minute", methods=["POST"])  # brute-force protection on password guessing
 def login():
     if current_user():
         return redirect(url_for("dashboard"))
