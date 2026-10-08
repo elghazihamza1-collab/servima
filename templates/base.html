@@ -9,11 +9,11 @@
   <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
   <meta name="theme-color" content="#0E7A3D">
-  <meta name="description" content="{{ t('meta_description') }}">
+  <meta name="description" content="{% block meta_desc %}{{ t('meta_description') }}{% endblock %}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Servima">
-  <meta property="og:title" content="Servima">
-  <meta property="og:description" content="{{ t('meta_description') }}">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.meta_desc() }}">
   <meta property="og:url" content="{{ request.url }}">
   <meta property="og:image" content="{{ request.url_root }}static/og-image.png">
 </head>

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ t('tc_title', trade=trade_name, city=city_label) }}{% endblock %}
+{% block meta_desc %}{{ t('tc_meta', trade=trade_name, city=city_label) }}{% endblock %}
+{% block content %}
+
+<nav class="breadcrumbs small muted">
+  <a href="{{ url_for('home') }}">{{ t('nav_home') }}</a> ›
+  <a href="{{ url_for('workers', trade=trade_key) }}">{{ trade_name }}</a> ›
+  {{ city_label }}
+</nav>
+
+<h1>{{ t('tc_title', trade=trade_name, city=city_label) }}</h1>
+<p class="lead">{{ t('tc_intro', trade=trade_name, city=city_label) }}</p>
+
+<div class="cta-row" style="margin:1rem 0">
+  <a class="btn btn-green" href="{{ url_for('job_new') }}">📝 {{ t('tc_post_job') }}</a>
+  <a class="btn" href="{{ url_for('register') }}">👷 {{ t('tc_join', trade=trade_name) }}</a>
+</div>
+
+{% if avg_price %}
+<p class="price-hint">📊 {{ t('tc_avg') }}: <strong>{{ avg_price }} MAD</strong></p>
+{% endif %}
+
+<h2>{{ t('tc_available', trade=trade_name, city=city_label) }}</h2>
+{% if workers %}
+<div class="workercards">
+  {% for w in workers %}
+  <a class="workercard" href="{{ url_for('worker_detail', user_id=w.id) }}">
+    <span class="avatar">
+      {% if w.photo %}<img src="{{ w.photo }}" alt="{{ w.name }}" loading="lazy" onerror="this.remove()">{% endif %}
+      {{ w.name[0] if w.name else '؟' }}
+    </span>
+    <span>
+      <h3>{{ w.name }}</h3>
+      <div class="trade">{{ w.trade_name }} · 📍 {{ w.city }}</div>
+      <div>
+        <span class="stars">{% for i in range(1,6) %}{{ '★' if i <= ((w.avg or 0)|round|int) else '☆' }}{% endfor %}</span>
+        <span class="small muted">({{ w.rating_count or 0 }})</span>
+      </div>
+      {% if w.phone_verified %}<span class="verified" title="{{ t('badge_phone') }}">📱</span>{% endif %}{% if w.is_verified %}<span class="verified" title="{{ t('badge_trade') }}">🔧 {{ t('verified') }}</span>{% endif %}{% if w.id_verified %}<span class="verified" title="{{ t('badge_id') }}">🆔</span>{% endif %}
+    </span>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <h3>{{ t('tc_none_title', trade=trade_name, city=city_label) }}</h3>
+  <p>{{ t('tc_none_text') }}</p>
+  <a class="btn btn-green" href="{{ url_for('register') }}">👷 {{ t('tc_join', trade=trade_name) }}</a>
+</div>
+{% endif %}
+
+<h2>{{ t('sec_how') }}</h2>
+<div class="steps">
+  <div class="step"><span class="n">1</span><h3>{{ t('hj1_t') }}</h3><p>{{ t('hj1_d') }}</p></div>
+  <div class="step"><span class="n">2</span><h3>{{ t('hj2_t') }}</h3><p>{{ t('hj2_d') }}</p></div>
+  <div class="step"><span class="n">3</span><h3>{{ t('hj3_t') }}</h3><p>{{ t('hj3_d') }}</p></div>
+</div>
+
+<h2>{{ t('tc_faq_t') }}</h2>
+<div class="faq">
+  <details><summary>{{ t('tc_faq1_q', trade=trade_name, city=city_label) }}</summary><p>{{ t('tc_faq1_a', trade=trade_name, city=city_label) }}</p></details>
+  <details><summary>{{ t('tc_faq2_q', trade=trade_name, city=city_label) }}</summary><p>{{ t('tc_faq2_a', trade=trade_name, city=city_label) }}</p></details>
+  <details><summary>{{ t('tc_faq3_q', trade=trade_name, city=city_label) }}</summary><p>{{ t('tc_faq3_a', trade=trade_name, city=city_label) }}</p></details>
+</div>
+
+{% endblock %}
