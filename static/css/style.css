@@ -141,6 +141,13 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
   display: flex; align-items: center; justify-content: center;
 }
 .mascot-ring + .mascot-ring { margin-inline-start: -22px; }
+/* the ring floats gently forever (staggered); the character emerges from inside on load */
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.mascot-ring:first-child { animation: mascot-float 4s ease-in-out 1.8s infinite; }
+.mascot-ring:last-child { animation: mascot-float 4s ease-in-out 3.8s infinite; }
 /* circles stay fixed and visible; characters emerge from inside on page load */
 .mascot-ring img { width: 112%; height: 112%; object-fit: cover; opacity: 0; }
 @keyframes mascot-emerge {
@@ -151,7 +158,8 @@ h1, h2, h3 { line-height: 1.35; margin-block: 0 .6rem; }
 .mascot-ring:first-child img { animation: mascot-emerge .9s cubic-bezier(.2,.9,.3,1.2) .3s 1 forwards; }
 .mascot-ring:last-child img { animation: mascot-emerge .9s cubic-bezier(.2,.9,.3,1.2) .7s 1 forwards; }
 @media (prefers-reduced-motion: reduce) {
-  .mascot-ring img { animation: none; opacity: 1; transform: none; }
+  .mascot-ring, .mascot-ring img { animation: none; }
+  .mascot-ring img { opacity: 1; transform: none; }
 }
 
 /* success page: animated checkmark + centered celebration layout */
