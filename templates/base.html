@@ -124,6 +124,17 @@
   }
   onScroll();
 })();
+// replay the mascot greeting when the page is restored from cache (back button),
+// so it never stays frozen and always greets on return
+window.addEventListener('pageshow', function (e) {
+  if (e.persisted) {
+    document.querySelectorAll('.mascot-ring img').forEach(function (img) {
+      img.style.animation = 'none';
+      void img.offsetWidth;
+      img.style.animation = '';
+    });
+  }
+});
 </script>
 </body>
 </html>
