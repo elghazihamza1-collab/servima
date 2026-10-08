@@ -9,9 +9,12 @@
       <h1>{{ t('hero_title') }}</h1>
       <p class="lede">{{ t('hero_subtitle') }}</p>
     </div>
-    <div class="hero-duo" aria-hidden="true">
-      <span class="mascot-ring"><img src="{{ url_for('static', filename='img/mascot-male.png') }}" alt="" loading="lazy"></span>
-      <span class="mascot-ring"><img src="{{ url_for('static', filename='img/mascot-female.png') }}" alt="" loading="lazy"></span>
+    <div class="mascot-greet">
+      <span class="greet-bubble">{{ t('mascot_hello') }}</span>
+      <div class="hero-duo" aria-hidden="true">
+        <span class="mascot-ring"><img src="{{ url_for('static', filename='img/mascot-male.png') }}" alt="" loading="lazy"></span>
+        <span class="mascot-ring"><img src="{{ url_for('static', filename='img/mascot-female.png') }}" alt="" loading="lazy"></span>
+      </div>
     </div>
   </div>
   <div class="hero-ctas compact">
