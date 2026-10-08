@@ -1016,6 +1016,50 @@ def workers():
     )
 
 
+@app.route("/t/<trade_key>/<city_key>")
+def trade_city(trade_key, city_key):
+    """SEO landing page: one per trade x city (e.g. /t/plumber/casablanca).
+
+    Auto-generated from a single template: worker list (verified first),
+    CTAs, FAQ and price hints. Listed in sitemap.xml for Google indexing.
+    """
+    lang = get_lang()
+    cat = Category.query.filter_by(key=trade_key).first()
+    if not cat or city_key not in CITY_KEYS or city_key == "other":
+        abort(404)
+    workers = (
+        User.query.filter_by(
+            is_worker=True, is_blocked=False, trade=trade_key, city=city_key
+        )
+        .order_by(User.is_verified.desc(), User.id_verified.desc(),
+                  User.created_at.desc())
+        .all()
+    )
+    for w in workers:
+        w.avg = avg_rating(w.id)
+        w.rating_count = Rating.query.filter_by(worker_id=w.id).count()
+    # average agreed price of completed jobs for this trade+city (observatory)
+    avg_price = (
+        db.session.query(db.func.avg(JobRequest.final_price))
+        .filter(
+            JobRequest.category_key == trade_key,
+            JobRequest.city == city_key,
+            JobRequest.status == "done",
+            JobRequest.final_price.isnot(None),
+        )
+        .scalar()
+    )
+    trade_name = cat.label(lang)
+    city_label = city_name(city_key, lang)
+    return render_template(
+        "trade_city.html",
+        trade_key=trade_key, city_key=city_key,
+        trade_name=trade_name, city_label=city_label,
+        workers=workers,
+        avg_price=int(avg_price) if avg_price else None,
+    )
+
+
 @app.route("/worker/<int:user_id>")
 def worker_detail(user_id):
     worker = db.get_or_404(User, user_id)
@@ -1785,11 +1829,21 @@ def sitemap_xml():
     try:
         # trade pages: /workers?trade=<key> for every category (DB-managed,
         # so the sitemap stays current when categories are added/edited)
-        for cat in Category.query.order_by(Category.key).all():
+        cats = Category.query.order_by(Category.key).all()
+        for cat in cats:
             urls.append(
                 "  <url><loc>%sworkers?trade=%s</loc><changefreq>daily</changefreq></url>"
                 % (request.host_url, quote(cat.key, safe=""))
             )
+        # city x trade landing pages: /t/<trade>/<city> (skip "other")
+        for cat in cats:
+            for ck in CITY_KEYS:
+                if ck == "other":
+                    continue
+                urls.append(
+                    "  <url><loc>%st/%s/%s</loc><changefreq>weekly</changefreq></url>"
+                    % (request.host_url, quote(cat.key, safe=""), quote(ck, safe=""))
+                )
     except Exception:
         pass  # static pages still served even if categories can't load
     body = (
