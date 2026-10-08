@@ -124,17 +124,40 @@
   }
   onScroll();
 })();
-// replay the mascot greeting when the page is restored from cache (back button),
-// so it never stays frozen and always greets on return
-window.addEventListener('pageshow', function (e) {
-  if (e.persisted) {
-    document.querySelectorAll('.mascot-ring img').forEach(function (img) {
-      img.style.animation = 'none';
-      void img.offsetWidth;
-      img.style.animation = '';
+// mascot greeting: play only AFTER the mascot images finish loading,
+// otherwise the peek animation runs on empty boxes and nobody sees it
+(function () {
+  function play() {
+    document.querySelectorAll('.mascot-greet, .hero-duo').forEach(function (el) {
+      if (!el.querySelector('.mascot-ring')) return;
+      el.classList.remove('mascots-ready');
+      void el.offsetWidth;
+      el.classList.add('mascots-ready');
     });
   }
-});
+  function init() {
+    var imgs = Array.prototype.slice.call(
+      document.querySelectorAll('.mascot-greet img, .hero-duo .mascot-ring img'));
+    if (!imgs.length) return;
+    var done = false;
+    function go() { if (!done) { done = true; play(); } }
+    var pending = imgs.length;
+    function tick() { if (--pending <= 0) go(); }
+    imgs.forEach(function (img) {
+      if (img.complete && img.naturalWidth) tick();
+      else {
+        img.addEventListener('load', tick);
+        img.addEventListener('error', tick);
+      }
+    });
+    setTimeout(go, 2500); // never leave them hidden on a stalled connection
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
+  // replay the greeting when returning via the browser back button
+  window.addEventListener('pageshow', function (e) { if (e.persisted) play(); });
+})();
 </script>
 </body>
 </html>
