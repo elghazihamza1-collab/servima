@@ -89,7 +89,7 @@ function vpVerify() {
     .then(function (idToken) {
       return fetch('{{ url_for('verify_phone_confirm') }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}' },
         body: JSON.stringify({ id_token: idToken }),
       });
     })
@@ -109,7 +109,10 @@ function vpVerify() {
 // Fallback: quota exceeded or Firebase down -> create account unverified,
 // user is asked to verify later. Nobody is ever blocked from registering.
 function vpFallback() {
-  fetch('{{ url_for('verify_phone_fallback') }}', { method: 'POST' })
+  fetch('{{ url_for('verify_phone_fallback') }}', {
+    method: 'POST',
+    headers: { 'X-CSRFToken': '{{ csrf_token() }}' },
+  })
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (data.ok) { window.location.href = '{{ url_for('dashboard') }}'; }

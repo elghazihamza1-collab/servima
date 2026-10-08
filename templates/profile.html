@@ -11,7 +11,7 @@
   </div>
   {% endif %}
 
-  <form action="{{ url_for('profile_update') }}" method="post" enctype="multipart/form-data" class="form">
+  <form action="{{ url_for('profile_update') }}" method="post" enctype="multipart/form-data" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label>📷 {{ t('f_photo') }} <span class="muted small">({{ t('optional') }})</span>
       <input type="file" name="photo" accept="image/*">
     </label>

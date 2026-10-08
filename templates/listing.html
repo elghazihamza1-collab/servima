@@ -20,7 +20,7 @@
   </div>
   <aside class="detail-side">
     <h2>{{ t('listing_book_t') }}</h2>
-    <form action="{{ url_for('booking_new', listing_id=listing.id) }}" method="post" class="form">
+    <form action="{{ url_for('booking_new', listing_id=listing.id) }}" method="post" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <label>{{ t('form_name') }}<input type="text" name="name" required></label>
       <label>{{ t('form_phone') }}<input type="tel" name="phone" required></label>
       <label>{{ t('form_date') }}<input type="date" name="date" required></label>

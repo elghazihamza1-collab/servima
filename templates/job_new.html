@@ -5,7 +5,7 @@
 <div class="auth-card">
   <h1>{{ t('job_new_title') }}</h1>
   <span class="free-pill">✦ {{ t('free_launch_note') }}</span>
-  <form action="{{ url_for('job_new') }}" method="post" class="form" onsubmit="var b=this.querySelector('[type=submit]');if(b){b.disabled=true;b.style.opacity='.6';}">
+  <form action="{{ url_for('job_new') }}" method="post" class="form" onsubmit="var b=this.querySelector('[type=submit]');if(b){b.disabled=true;b.style.opacity='.6';}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label>{{ t('f_jtitle') }}
       <input type="text" name="title" required maxlength="120">
     </label>

@@ -4,7 +4,7 @@
 
 <div class="auth-card">
   <h1>{{ t('job_edit_title') }}</h1>
-  <form action="{{ url_for('job_edit', job_id=job.id) }}" method="post" class="form">
+  <form action="{{ url_for('job_edit', job_id=job.id) }}" method="post" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label>{{ t('f_jtitle') }}
       <input type="text" name="title" required maxlength="120" value="{{ job.title }}">
     </label>

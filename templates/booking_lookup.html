@@ -2,7 +2,7 @@
 {% block title %}{{ t('lookup_title') }}{% endblock %}
 {% block content %}
 <h1>{{ t('lookup_title') }}</h1>
-<form action="{{ url_for('booking_lookup') }}" method="post" class="form narrow">
+<form action="{{ url_for('booking_lookup') }}" method="post" class="form narrow"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
   <label>{{ t('ref_label') }}<input type="text" name="ref" placeholder="{{ t('lookup_ph') }}" required></label>
   <button class="btn" type="submit">{{ t('btn_check') }}</button>
 </form>

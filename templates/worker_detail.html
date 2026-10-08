@@ -51,7 +51,7 @@
 
 {% if current_user %}
 <h2>{{ t('rate_this_worker') }}</h2>
-<form action="{{ url_for('worker_rate', user_id=worker.id) }}" method="post" class="form narrow" style="margin-inline:0">
+<form action="{{ url_for('worker_rate', user_id=worker.id) }}" method="post" class="form narrow" style="margin-inline:0"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
   <label>{{ t('f_rating') }}
     <select name="stars" required>
       <option value="5">★★★★★ (5)</option>

@@ -51,22 +51,22 @@
     </td>
     <td class="actions">
       {% if u.is_verified %}
-        <form method="post" action="{{ url_for('admin_user_unverify', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unverify') }}</button></form>
+        <form method="post" action="{{ url_for('admin_user_unverify', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link" type="submit">{{ t('btn_unverify') }}</button></form>
       {% else %}
-        <form method="post" action="{{ url_for('admin_user_verify', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_verify') }}</button></form>
+        <form method="post" action="{{ url_for('admin_user_verify', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link" type="submit">{{ t('btn_verify') }}</button></form>
       {% endif %}
       {% if u.id_verified %}
-        <form method="post" action="{{ url_for('admin_user_unverify_id', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unverify_id') }}</button></form>
+        <form method="post" action="{{ url_for('admin_user_unverify_id', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link" type="submit">{{ t('btn_unverify_id') }}</button></form>
       {% else %}
-        <form method="post" action="{{ url_for('admin_user_verify_id', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_verify_id') }}</button></form>
+        <form method="post" action="{{ url_for('admin_user_verify_id', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link" type="submit">{{ t('btn_verify_id') }}</button></form>
       {% endif %}
       {% if u.is_blocked %}
-        <form method="post" action="{{ url_for('admin_user_unblock', user_id=u.id) }}"><button class="link" type="submit">{{ t('btn_unblock') }}</button></form>
+        <form method="post" action="{{ url_for('admin_user_unblock', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link" type="submit">{{ t('btn_unblock') }}</button></form>
       {% else %}
-        <form method="post" action="{{ url_for('admin_user_block', user_id=u.id) }}"><button class="link danger" type="submit">{{ t('btn_block') }}</button></form>
+        <form method="post" action="{{ url_for('admin_user_block', user_id=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link danger" type="submit">{{ t('btn_block') }}</button></form>
       {% endif %}
-      <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
-      <form method="post" action="{{ url_for('admin_user_reset_pw', user_id=u.id) }}" onsubmit="return confirm('{{ t('confirm_reset_pw') }}')"><button class="link" type="submit">🔑 {{ t('btn_reset_pw') }}</button></form>
+      <form method="post" action="{{ url_for('admin_user_delete', user_id=u.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
+      <form method="post" action="{{ url_for('admin_user_reset_pw', user_id=u.id) }}" onsubmit="return confirm('{{ t('confirm_reset_pw') }}')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link" type="submit">🔑 {{ t('btn_reset_pw') }}</button></form>
     </td>
   </tr>
   {% endfor %}
@@ -88,7 +88,7 @@
     <td><strong>{{ j.final_price if j.final_price else j.price }}</strong> MAD</td>
     <td>{{ j.status }}{% if j.completed_at %}<br><span class="small muted">{{ j.completed_at.strftime('%Y-%m-%d') }}</span>{% endif %}</td>
     <td class="actions">
-      <form method="post" action="{{ url_for('admin_job_delete', job_id=j.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
+      <form method="post" action="{{ url_for('admin_job_delete', job_id=j.id) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
     </td>
   </tr>
   {% endfor %}
@@ -112,7 +112,7 @@
     <td>{{ c.name_en }}</td>
     <td class="actions">
       <a class="link" href="{{ url_for('admin_category_edit', key=c.key) }}">{{ t('act_edit') }}</a>
-      <form method="post" action="{{ url_for('admin_category_delete', key=c.key) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
+      <form method="post" action="{{ url_for('admin_category_delete', key=c.key) }}" onsubmit="return confirm('{{ t('del_confirm') }}')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/><button class="link danger" type="submit">{{ t('btn_delete') }}</button></form>
     </td>
   </tr>
   {% endfor %}
@@ -120,7 +120,7 @@
 </div>
 
 <h3>{{ t('btn_add_cat') }}</h3>
-<form action="{{ url_for('admin_category_add') }}" method="post" enctype="multipart/form-data" class="form">
+<form action="{{ url_for('admin_category_add') }}" method="post" enctype="multipart/form-data" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
   <label>{{ t('f_name_ar') }}<input type="text" name="name_ar" required></label>
   <label>{{ t('f_name_fr') }}<input type="text" name="name_fr" required></label>
   <label>{{ t('f_name_en') }}<input type="text" name="name_en" required></label>

@@ -4,7 +4,7 @@
 
 <div class="auth-card">
   <h1>{{ t('auth_login_title') }}</h1>
-  <form action="{{ url_for('login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" method="post" class="form">
+  <form action="{{ url_for('login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}" method="post" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label>{{ t('f_phone') }}
       <input type="tel" name="phone" required dir="ltr" autocomplete="tel">
     </label>

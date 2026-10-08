@@ -57,7 +57,7 @@
       {% if job.status == 'accepted' %}
         <span class="accepted-note">✓ {{ t('job_accepted_by_you') }}</span>
       {% elif current_user %}
-        <form method="post" action="{{ url_for('job_accept', job_id=job.id) }}">
+        <form method="post" action="{{ url_for('job_accept', job_id=job.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button class="btn" type="submit">{{ t('btn_accept') }}</button>
         </form>
       {% else %}

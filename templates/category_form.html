@@ -2,7 +2,7 @@
 {% block title %}{{ t('btn_add_cat') if not category else t('act_edit') }}{% endblock %}
 {% block content %}
 <h1>{{ t('btn_add_cat') if not category else t('act_edit') }}</h1>
-<form action="" method="post" enctype="multipart/form-data" class="form narrow">
+<form action="" method="post" enctype="multipart/form-data" class="form narrow"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
   {% if not category %}
   <label>Key (slug, a-z 0-9 _)<input type="text" name="key" maxlength="40" placeholder="e.g. plumber"></label>
   <p class="muted small">Leave empty to auto-generate from the English name.</p>

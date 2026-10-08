@@ -5,7 +5,7 @@
 <div class="auth-card">
   <h1>{{ t('auth_reg_title') }}</h1>
   <p class="muted">{{ t('auth_reg_sub') }}</p>
-  <form action="{{ url_for('register') }}" method="post" class="form">
+  <form action="{{ url_for('register') }}" method="post" class="form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label>{{ t('f_name') }}
       <input type="text" name="name" required autocomplete="name">
     </label>

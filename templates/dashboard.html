@@ -13,7 +13,7 @@
   {% else %}
   <p class="muted">{{ t('f_trade') }}: <strong>{{ current_user.trade_name }}</strong></p>
   {% endif %}
-  <form method="post" action="{{ url_for('become_worker') }}" class="filters">
+  <form method="post" action="{{ url_for('become_worker') }}" class="filters"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label>{{ t('f_trade') }}
       <select name="trade" required>
         {% if not current_user.is_worker %}<option value="" disabled selected>— {{ t('f_trade') }} —</option>{% endif %}

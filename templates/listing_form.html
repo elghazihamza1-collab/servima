@@ -2,7 +2,7 @@
 {% block title %}{{ t('form_listing_new') if not listing else t('form_listing_edit') }}{% endblock %}
 {% block content %}
 <h1>{{ t('form_listing_new') if not listing else t('form_listing_edit') }}</h1>
-<form action="" method="post" enctype="multipart/form-data" class="form narrow">
+<form action="" method="post" enctype="multipart/form-data" class="form narrow"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
   <label>{{ t('f_ltitle') }}<input type="text" name="title" value="{{ data.title or '' }}" maxlength="160" required></label>
   <label>{{ t('f_lcategory') }}
     <select name="category" required>
